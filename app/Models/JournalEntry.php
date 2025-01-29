@@ -26,7 +26,7 @@ class JournalEntry extends Model
         return $this->belongsTo(Challenge::class);
     }
 
-    // public function links():HasMany{
-    //     return $this->hasMany(JournalLinks::class);
-    // }
+    public function links():HasMany{
+        return $this->hasMany(JournalLink::class);
+    }
 }
