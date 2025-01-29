@@ -31,4 +31,8 @@ class Challenge extends Model
         return $this->hasMany(Reminder::class);
     }
 
+    public function achievements() : HasMany {
+        return $this->hasMany(Achievement::class);
+    }
+
 }

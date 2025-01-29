@@ -33,6 +33,10 @@ class User extends Authenticatable
         return $this->hasMany(Tag::class);
     }
 
+    public function achievements() : HasMany {
+        return $this->hasMany(Achievement::class);
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *
