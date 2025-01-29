@@ -27,8 +27,8 @@ class Challenge extends Model
         return $this->hasMany(JournalEntry::class);
     }
 
-    // public function remiders():HasMany {
-    //     return $this->hasMany(Reminder::class);
-    // }
+    public function remiders():HasMany {
+        return $this->hasMany(Reminder::class);
+    }
 
 }
