@@ -37,6 +37,10 @@ class User extends Authenticatable
         return $this->hasMany(Achievement::class);
     }
 
+    public function alaytics():HasMany {
+        return $this->hasMany(Analytics::class);
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *
