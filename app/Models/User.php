@@ -29,6 +29,10 @@ class User extends Authenticatable
         return $this->hasMany(Challenge::class);
     }
 
+    public function tags():HasMany {
+        return $this->hasMany(Tag::class);
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *
