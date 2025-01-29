@@ -23,9 +23,9 @@ class Challenge extends Model
         return $this->belongsToMany(Tag::class, 'challenge_tag');
     }
 
-    // public function journalEntries(): HasMany {
-    //     return $this->hasMany(JournalEntry::class);
-    // }
+    public function journalEntries(): HasMany {
+        return $this->hasMany(JournalEntry::class);
+    }
 
     // public function remiders():HasMany {
     //     return $this->hasMany(Reminder::class);
