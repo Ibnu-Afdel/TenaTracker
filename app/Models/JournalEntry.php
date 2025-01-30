@@ -19,9 +19,16 @@ class JournalEntry extends Model
         'image',
         'code_snippet',
         'is_public',
-        'shared_link'
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($journalEntry) {
+            $journalEntry->shared_link = \Illuminate\Support\Str::uuid();
+        });
+    }
+    
     public function challenge():BelongsTo {
         return $this->belongsTo(Challenge::class);
     }
