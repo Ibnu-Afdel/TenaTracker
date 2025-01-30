@@ -1,5 +1,5 @@
 <div>
-    <div id="journalModal" class="fixed inset-0 flex items-center justify-center hidden bg-gray-900 bg-opacity-50">
+    <div id="journalModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50" style="display: none;">
         <div class="w-1/3 p-6 bg-white rounded-lg shadow-lg">
             <h2 class="mb-4 text-xl font-bold">New Journal Entry</h2>
 
