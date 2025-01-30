@@ -16,7 +16,9 @@ class ChallengeDetail extends Component
 
     public $statusOptions = ['Ongoing', 'Completed', 'Paused'];
 
-    protected $listeners = ['journalEntryCreated' => '$refresh', 'openJournalEntryForm'];
+    protected $listeners = [
+        'journalEntryCreated' => '$refresh'
+    ];
 
     public function mount($challengeId)
     {
@@ -24,30 +26,26 @@ class ChallengeDetail extends Component
             ->with('tags', 'journalEntries')
             ->findOrFail($challengeId);
     }
-
     public function toggleStatus()
-    {
-        if ($this->challenge->user_id === Auth::id()) {
-            $currentStatus = $this->challenge->status;
-            $newStatus = $currentStatus === 'Ongoing' ? 'Completed' : ($currentStatus === 'Completed' ? 'Paused' : 'Ongoing');
-            $this->challenge->update(['status' => $newStatus]);
-        }
-    }
-
-
-    public function deleteChallenge()
-    {
-        if ($this->challenge->user_id === Auth::id()) {
-            $this->challenge->delete();
-            return redirect()->route('dashboard');
-        }
-    }
-
-    public function openJournalEntryForm()
 {
-    $this->dispatch('openJournalModal');
+    if ($this->challenge->user_id === Auth::id()) {
+        $newStatus = match ($this->challenge->status) {
+            'Ongoing' => 'Completed',
+            'Completed' => 'Paused',
+            default => 'Ongoing'
+        };
+
+        $this->challenge->update(['status' => $newStatus]);
+    }
 }
 
+public function deleteChallenge()
+{
+    if ($this->challenge->user_id === Auth::id()) {
+        $this->challenge->delete();
+        return redirect()->route('dashboard');
+    }
+}
 
 
     public function render()

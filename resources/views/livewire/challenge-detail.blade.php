@@ -11,7 +11,7 @@
     </div>
 
     <!-- Status & Actions -->
-    <div class="flex items-center mt-4 space-x-4">
+    {{-- <div class="flex items-center mt-4 space-x-4">
         <button wire:click="toggleStatus" class="px-3 py-1 rounded text-white 
                 {{ $challenge->status === 'Ongoing' ? 'bg-green-500' : ($challenge->status === 'Completed' ? 'bg-blue-500' : 'bg-gray-500') }}">
             {{ $challenge->status }}
@@ -20,7 +20,20 @@
         <button wire:click="$set('confirmingDelete', true)" class="px-3 py-1 text-white bg-red-500 rounded">
             Delete Challenge
         </button>
+    </div> --}}
+
+
+    <div class="flex items-center mt-4 space-x-4">
+        <button wire:click="toggleStatus" class="px-3 py-1 rounded text-white 
+                {{ $challenge->status === 'Ongoing' ? 'bg-green-500' : ($challenge->status === 'Completed' ? 'bg-blue-500' : 'bg-gray-500') }}">
+            {{ $challenge->status }}
+        </button>
+    
+        <button wire:click="deleteChallenge" class="px-3 py-1 text-white bg-red-500 rounded">
+            Delete Challenge
+        </button>
     </div>
+    
 
     <!-- Delete Confirmation Modal -->
     @if($confirmingDelete)
@@ -37,18 +50,31 @@
 
     <!-- Journal Entries Section -->
     <div class="mt-6">
-        <h3 class="text-lg font-bold">Journal Entries</h3>
-        <button wire:click="$dispatch('openJournalEntryForm')" class="px-3 py-1 text-white bg-blue-500 rounded">
-            + Add Entry
-        </button>
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-semibold">Journal Entries</h2>
+            <a href="{{ route('journal.create', ['challengeId' => $challenge->id]) }}"
+                class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                Add Entry
+            </a>
+        </div>
 
         <div wire:loading class="text-center text-gray-500">Loading...</div>
 
         @foreach($journalEntries as $entry)
-            <div class="p-4 mt-2 border rounded">
-                <p class="text-gray-800">{{ $entry->content }}</p>
-                <p class="text-xs text-gray-500">Date: {{ $entry->date }}</p>
-                {{-- <a href="{{ route('journal.view', $entry->id) }}" class="text-sm text-blue-500">View</a> --}}
+            <div class="p-4 mt-2 border rounded hover:bg-gray-50">
+                <div class="flex justify-between items-start">
+                    <h4 class="font-semibold">{{ $entry->title }}</h4>
+                    <span class="text-sm text-gray-500">{{ $entry->date }}</span>
+                </div>
+                <p class="mt-2 text-gray-800">{{ $entry->content }}</p>
+                @if($entry->code_snippet)
+                    <pre class="mt-2 p-2 bg-gray-100 rounded"><code>{{ $entry->code_snippet }}</code></pre>
+                @endif
+                @if($entry->shared_link)
+                    <a href="{{ $entry->shared_link }}" target="_blank" class="mt-2 text-blue-500 hover:underline inline-block">
+                        Shared Link →
+                    </a>
+                @endif
             </div>
         @endforeach
 
@@ -58,6 +84,4 @@
         </div>
     </div>
 
-    <!-- Include the JournalEntryForm Component -->
-    @livewire('journal-entry-form', ['challengeId' => $challenge->id])
-</div>
+    </div>

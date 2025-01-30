@@ -5,52 +5,46 @@ namespace App\Livewire;
 use App\Models\Challenge;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
-use Livewire\WithPagination;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 
 class ChallengesDashboard extends Component
 {
-
-    use WithPagination;
-
     public $search = '';
     public $statusFilter = 'all';
     public $favoritesOnly = false;
 
-    protected $updatesQueryString = ['search', 'statusFilter', 'favoritesOnly'];
-
-    public function updateSearch()
+    #[On('challengeCreated')] 
+    public function refreshChallenges()
     {
-        $this->resetPage();
+        // This method will be called when 'challengeCreated' event is emitted
+        // The #[Computed] property will automatically refresh
     }
 
-    public function toggleFavorite($challengeID)
+    public function toggleFavorite($challengeId)
     {
-        $challenge = Challenge::findOrFail($challengeID);
-        if ($challenge->user_id === Auth::id()) {
-            $challenge->is_favorite != $challenge->is_favorite;
-            $challenge->save();
-        }
+        $challenge = Challenge::where('user_id', Auth::id())
+            ->findOrFail($challengeId);
+        
+        $challenge->is_favorite = !$challenge->is_favorite;
+        $challenge->save();
     }
 
-    protected $listeners = ['challengeCreated', 'openCreateChallengeModal'];
-
-    public function openCreateChallengeModal()
+    public function toggleFavorites()
     {
-        $this->dispatchBrowserEvent('openCreateChallengeModal');
+        $this->favoritesOnly = !$this->favoritesOnly;
     }
 
-    public function challengeCreated()
+    #[Computed]
+    public function challenges()
     {
-        $this->resetPage();
-    }
-
-
-    public function render()
-    {
-
-        $challenges = Challenge::where('user_id', Auth::id())
+        return Challenge::query()
+            ->where('user_id', Auth::id())
             ->when($this->search, function ($query) {
-                $query->where('name', 'like', "%{$this->search}%");
+                $query->where(function($q) {
+                    $q->where('name', 'like', '%' . $this->search . '%')
+                    ->orWhere('description', 'like', '%' . $this->search . '%');
+                });
             })
             ->when($this->statusFilter !== 'all', function ($query) {
                 $query->where('status', $this->statusFilter);
@@ -58,7 +52,15 @@ class ChallengesDashboard extends Component
             ->when($this->favoritesOnly, function ($query) {
                 $query->where('is_favorite', true);
             })
-            ->latest()->paginate(5);
-        return view('livewire.challenges-dashboard', compact('challenges'));
+            ->latest()
+            ->get();
+    }
+
+    public function render()
+    {
+        return view('livewire.challenges-dashboard')
+            ->layout('layouts.app', [
+                'header' => 'Challenges Dashboard'
+            ]);
     }
 }

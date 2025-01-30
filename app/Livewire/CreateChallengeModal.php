@@ -6,12 +6,10 @@ use App\Models\Challenge;
 use App\Models\Tag;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
-use Livewire\WithPagination;
 
 class CreateChallengeModal extends Component
 {
-    use WithPagination;
-
+    public $showForm = false; // Controls modal visibility
     public $name;
     public $description;
     public $start_date;
@@ -35,9 +33,22 @@ class CreateChallengeModal extends Component
         'end_date.after_or_equal' => 'End date must be after or equal to the start date.',
     ];
 
+    protected $listeners = ['openCreateChallengeModal' => 'showModal'];
+
     public function mount()
     {
-        $this->allTags = Tag::where('user_id', Auth::id())->pluck('name', 'id');
+        $this->allTags = Tag::where('user_id', Auth::id())->get();
+    }
+
+    public function showModal()
+    {
+        $this->showForm = true;
+    }
+
+    public function closeModal()
+    {
+        $this->reset(['name', 'description', 'start_date', 'end_date', 'is_favorite', 'selectedTags']);
+        $this->showForm = false;
     }
 
     public function createChallenge()
@@ -52,21 +63,15 @@ class CreateChallengeModal extends Component
             'user_id' => Auth::id(),
             'is_favorite' => $this->is_favorite,
         ]);
+
         if (!empty($this->selectedTags)) {
             $challenge->tags()->attach($this->selectedTags);
         }
 
-        
-        $this->reset(['name', 'description', 'start_date', 'end_date', 'is_favorite', 'selectedTags']);
+        $this->closeModal();
 
-        // Emit event to refresh ChallengesDashboard
         $this->dispatch('challengeCreated');
-
-        // Close modal
-        $this->dispatch('closeModal');
-
     }
-
 
     public function render()
     {
