@@ -18,32 +18,47 @@ class ChallengesDashboard extends Component
 
     protected $updatesQueryString = ['search', 'statusFilter', 'favoritesOnly'];
 
-    public function updateSearch() {
+    public function updateSearch()
+    {
         $this->resetPage();
     }
 
-    public function toggleFavorite($challengeID){
+    public function toggleFavorite($challengeID)
+    {
         $challenge = Challenge::findOrFail($challengeID);
-        if ($challenge->user_id === Auth::id()){
+        if ($challenge->user_id === Auth::id()) {
             $challenge->is_favorite != $challenge->is_favorite;
             $challenge->save();
         }
     }
 
+    protected $listeners = ['challengeCreated', 'openCreateChallengeModal'];
+
+    public function openCreateChallengeModal()
+    {
+        $this->dispatchBrowserEvent('openCreateChallengeModal');
+    }
+
+    public function challengeCreated()
+    {
+        $this->resetPage();
+    }
+
+
     public function render()
     {
 
         $challenges = Challenge::where('user_id', Auth::id())
-        ->when($this->search, function($query){
-            $query->where('name', 'like', "%{$this->search}%");
-        })
-        ->when($this->statusFilter !== 'all', function($query){
-            $query->where('status', $this->statusFilter);
-        })
-        ->when($this->favoritesOnly, function($query){
-            $query->where('is_favorite', true);
-        })
-        ->latest()->paginate(5);
+            ->when($this->search, function ($query) {
+                $query->where('name', 'like', "%{$this->search}%");
+            })
+            ->when($this->statusFilter !== 'all', function ($query) {
+                $query->where('status', $this->statusFilter);
+            })
+            ->when($this->favoritesOnly, function ($query) {
+                $query->where('is_favorite', true);
+            })
+            ->latest()->paginate(5);
         return view('livewire.challenges-dashboard', compact('challenges'));
     }
 }
