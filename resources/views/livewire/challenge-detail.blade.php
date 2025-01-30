@@ -2,7 +2,7 @@
     <h2 class="text-xl font-bold">{{ $challenge->name }}</h2>
     <p class="text-gray-600">{{ $challenge->description }}</p>
     <p class="text-sm text-gray-500">Start: {{ $challenge->start_date }} | End: {{ $challenge->end_date }}</p>
-    
+
     <!-- Tags -->
     <div class="mt-2">
         @foreach($challenge->tags as $tag)
@@ -38,7 +38,9 @@
     <!-- Journal Entries Section -->
     <div class="mt-6">
         <h3 class="text-lg font-bold">Journal Entries</h3>
-        <button wire:click="$emit('openJournalEntryForm')" class="px-3 py-1 text-white bg-blue-500 rounded">+ Add Entry</button>
+        <button wire:click="$dispatch('openJournalEntryForm')" class="px-3 py-1 text-white bg-blue-500 rounded">
+            + Add Entry
+        </button>
 
         <div wire:loading class="text-center text-gray-500">Loading...</div>
 
@@ -46,7 +48,7 @@
             <div class="p-4 mt-2 border rounded">
                 <p class="text-gray-800">{{ $entry->content }}</p>
                 <p class="text-xs text-gray-500">Date: {{ $entry->date }}</p>
-                <a href="{{ route('journal.view', $entry->id) }}" class="text-sm text-blue-500">View</a>
+                {{-- <a href="{{ route('journal.view', $entry->id) }}" class="text-sm text-blue-500">View</a> --}}
             </div>
         @endforeach
 
@@ -55,4 +57,7 @@
             {{ $journalEntries->links() }}
         </div>
     </div>
+
+    <!-- Include the JournalEntryForm Component -->
+    @livewire('journal-entry-form', ['challengeId' => $challenge->id])
 </div>

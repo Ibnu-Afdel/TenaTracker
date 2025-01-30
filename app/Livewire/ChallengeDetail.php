@@ -16,7 +16,7 @@ class ChallengeDetail extends Component
 
     public $statusOptions = ['Ongoing', 'Completed', 'Paused'];
 
-    protected $listeners = ['journalEntryCreated' => '$refresh'];
+    protected $listeners = ['journalEntryCreated' => '$refresh', 'openJournalEntryForm'];
 
     public function mount($challengeId)
     {
@@ -43,6 +43,12 @@ class ChallengeDetail extends Component
         }
     }
 
+    public function openJournalEntryForm()
+{
+    $this->dispatch('openJournalModal');
+}
+
+
 
     public function render()
     {
@@ -51,6 +57,6 @@ class ChallengeDetail extends Component
         ->latest()
         ->paginate(5);
 
-        return view('livewire.challenge-detail', compact('journalEntries'));
+        return view('livewire.challenge-detail', compact('journalEntries'))->layout('layouts.app');;
     }
 }
