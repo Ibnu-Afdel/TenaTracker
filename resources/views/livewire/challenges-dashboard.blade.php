@@ -44,7 +44,7 @@
                 </div>
                 <p class="text-sm text-gray-600">{{ $challenge->description }}</p>
                 <p class="text-xs text-gray-500">Status: {{ $challenge->status }}</p>
-                {{-- <a href="{{ route('challenges.detail', $challenge->id) }}" class="text-sm text-blue-500">View Details</a> --}}
+                <a href="{{ route('challenges.detail', $challenge->id) }}" class="text-sm text-blue-500">View Details</a>
             </div>
         @endforeach
     </div>

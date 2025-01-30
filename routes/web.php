@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Livewire\ChallengeDetail;
 use App\Livewire\ChallengesDashboard;
 use Illuminate\Support\Facades\Route;
 
@@ -19,4 +20,5 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('/dashboard', ChallengesDashboard::class)->middleware('auth')->name('dashboard');
+Route::get('/challenges/{challengeId}', ChallengeDetail::class)->middleware('auth')->name('challenges.detail');
 require __DIR__.'/auth.php';
