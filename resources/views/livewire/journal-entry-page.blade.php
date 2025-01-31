@@ -2,7 +2,7 @@
     use Illuminate\Support\Facades\Storage;
 @endphp
 <div class="py-12">
-    <div
+    <div>
         <div class="overflow-hidden bg-white shadow-xl sm:rounded-lg">
             <div class="p-6">
                 <h2 class="mb-4 text-2xl font-bold">Create Journal Entry</h2>
@@ -44,21 +44,21 @@
                         <div class="space-y-4">
                             @foreach($blocks as $index => $block)
                                 <div class="relative p-4 border rounded-lg group">
-                                    <div class="absolute right-2 top-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div class="absolute flex space-x-1 transition-opacity opacity-0 right-2 top-2 group-hover:opacity-100">
                                         @if($index > 0)
                                             <button type="button" wire:click="moveBlockUp({{ $index }})"
-                                                class="p-1 text-gray-500 hover:text-gray-700 rounded">
+                                                class="p-1 text-gray-500 rounded hover:text-gray-700">
                                                 ↑
                                             </button>
                                         @endif
                                         @if($index < count($blocks) - 1)
                                             <button type="button" wire:click="moveBlockDown({{ $index }})"
-                                                class="p-1 text-gray-500 hover:text-gray-700 rounded">
+                                                class="p-1 text-gray-500 rounded hover:text-gray-700">
                                                 ↓
                                             </button>
                                         @endif
                                         <button type="button" wire:click="removeBlock({{ $index }})"
-                                            class="p-1 text-red-500 hover:text-red-700 rounded">
+                                            class="p-1 text-red-500 rounded hover:text-red-700">
                                             ×
                                         </button>
                                     </div>
@@ -70,7 +70,7 @@
                                     @elseif($block['type'] === 'code')
                                         <div class="space-y-2">
                                             <select wire:model="blocks.{{ $index }}.metadata.language" 
-                                                class="rounded-md border-gray-300">
+                                                class="border-gray-300 rounded-md">
                                                 <option value="bash">Bash</option>
                                                 <option value="php">PHP</option>
                                                 <option value="javascript">JavaScript</option>
@@ -113,7 +113,7 @@
                                                             : Storage::disk('public')->url($block['content']);
                                                     @endphp
                                                     <img src="{{ $imageUrl }}" 
-                                                        class="max-w-full h-auto rounded-lg"
+                                                        class="h-auto max-w-full rounded-lg"
                                                         alt="Uploaded image">
                                                 </div>
                                             @endif
@@ -160,13 +160,56 @@
 
 
                     <div>
-                        <label for="shared_link" class="block text-sm font-medium text-gray-700">Shared Link (Optional)</label>
-                        <input type="url" wire:model="shared_link" id="shared_link"
-                            class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                            placeholder="https://">
-                        @error('shared_link')
-                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                        <label class="block text-sm font-medium text-gray-700">Useful Links</label>
+                        <div class="mt-4 space-y-4">
+                            <!-- Add new link form -->
+                            <div class="flex gap-3">
+                                <div class="flex-1">
+                                    <input type="url" wire:model="newLink.url" 
+                                        class="block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                        placeholder="https://">
+                                    @error('newLink.url') 
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                <div class="flex-1">
+                                    <input type="text" wire:model="newLink.caption" 
+                                        class="block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                        placeholder="What is this link about?">
+                                    @error('newLink.caption') 
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                <button type="button" wire:click="addLink"
+                                    class="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                    Add Link
+                                </button>
+                            </div>
+
+                            <!-- List of added links -->
+                            @if(count($shared_links) > 0)
+                                <div class="mt-3 space-y-3">
+                                    @foreach($shared_links as $index => $link)
+                                        <div class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg group">
+                                            <div class="flex-1">
+                                                <h4 class="text-sm font-medium text-gray-900">{{ $link['caption'] }}</h4>
+                                                <a href="{{ $link['url'] }}" target="_blank" rel="noopener noreferrer" 
+                                                    class="text-sm text-indigo-600 hover:text-indigo-900">
+                                                    {{ $link['url'] }}
+                                                </a>
+                                            </div>
+                                            <button type="button" wire:click="removeLink({{ $index }})"
+                                                class="p-1 text-gray-400 hover:text-red-500">
+                                                <span class="sr-only">Remove link</span>
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
                     </div>
 
                     <div class="flex justify-end space-x-3">

@@ -9,6 +9,15 @@
             <div class="relative overflow-hidden">
             <div class="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-50"></div>
             <div class="relative px-6 py-10 sm:px-8 sm:py-14">
+                {{-- Back Button --}}
+                <a href="{{ route('dashboard') }}" 
+                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 transition-colors bg-gray-100 rounded-lg shadow hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2">
+                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                     </svg>
+                     Back
+                 </a>
+                 
                 <div class="flex flex-col items-start justify-between gap-8 lg:flex-row">
                     <div class="w-full space-y-6 text-center lg:w-2/3 lg:text-center">
                         <h1 class="mb-6 text-6xl font-bold tracking-tight text-gray-900">{{ $this->challenge->name }}</h1>
@@ -114,34 +123,36 @@
                 @foreach($journalEntries as $entry)
                 <div class="overflow-hidden transition-shadow bg-white shadow-sm rounded-xl ring-1 ring-gray-200 hover:shadow-md">
                     <div class="p-6">
-                    <div class="flex items-start justify-between gap-4">
-                        <h3 class="text-lg font-semibold text-gray-900">{{ $entry->title }}</h3>
-                        <time class="text-sm text-gray-500 tabular-nums" datetime="{{ $entry->date }}">
-                        {{ \Carbon\Carbon::parse($entry->date)->format('M j, Y') }}
-                        </time>
-                    </div>
-                    <p class="mt-4 leading-relaxed text-gray-600">{{ $entry->content }}</p>
-                    
-                    @if($entry->code_snippet)
-                        <div class="relative mt-4">
-                        <div class="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-50/50 to-indigo-50/50"></div>
-                        <pre class="relative p-4 overflow-x-auto rounded-lg bg-white/80 backdrop-blur-sm"><code class="text-sm text-gray-800">{{ $entry->code_snippet }}</code></pre>
+                        <div class="flex items-start justify-between gap-4">
+                            <h3 class="text-lg font-semibold text-gray-900">{{ $entry->title }}</h3>
+                            <time class="text-sm text-gray-500 tabular-nums" datetime="{{ $entry->date }}">
+                                {{ \Carbon\Carbon::parse($entry->date)->format('M j, Y') }}
+                            </time>
                         </div>
-                    @endif
+
+                        <!-- Display the tags for the journal -->
+                        @if($entry->tags && count($entry->tags) > 0)
+                            <div class="flex flex-wrap gap-2 mt-4">
+                                @foreach($entry->tags as $tag)
+                                    <span class="inline-flex items-center px-2 py-1 text-xs font-medium text-blue-700 rounded-full bg-blue-50 ring-1 ring-inset ring-blue-600/20">
+                                        {{ $tag }}
+                                    </span>
+                                @endforeach
+                            </div>
+                        @endif
+
                     </div>
                     
                     @if($entry->shared_link)
-                    <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
-                        <a 
-                        href="{{ route('shared.journal', ['shareToken' => $entry->shared_link]) }}"
-                        class="inline-flex items-center text-sm font-medium text-gray-500 transition-colors hover:text-gray-900"
-                        >
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                        </svg>
-                        Share Entry
-                        </a>
-                    </div>
+                        <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+                            <a href="{{ route('shared.journal', ['shareToken' => $entry->shared_link]) }}"
+                            class="inline-flex items-center text-sm font-medium text-gray-500 transition-colors hover:text-gray-900">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+                                </svg>
+                                Share Entry
+                            </a>
+                        </div>
                     @endif
                 </div>
                 @endforeach

@@ -27,6 +27,7 @@ class JournalEntry extends Model
         'tags',
         'is_public',
         'shared_link',
+        'title',
     ];
 
     protected static function boot()

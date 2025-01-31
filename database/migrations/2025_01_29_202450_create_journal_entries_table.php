@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('journal_entries', function (Blueprint $table) {
             $table->id();
             $table->foreignId('challenge_id')->constrained()->onDelete('cascade');
+            $table->string('title');
             $table->date('date');
             $table->text('content');
             $table->string('image')->nullable();

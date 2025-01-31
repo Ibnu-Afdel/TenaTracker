@@ -108,7 +108,7 @@ class ChallengeDetail extends Component
         ->latest()
         ->paginate(5);
 
-        return view('livewire.challenge-detail', compact('journalEntries'))->with('layout', 'layouts.app'); 
-        // ->layout('layouts.app');
+        return view('livewire.challenge-detail', compact('journalEntries'))
+        ->layout('layouts.app');
     }
 }

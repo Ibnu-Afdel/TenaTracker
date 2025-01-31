@@ -5,10 +5,10 @@
         <div class="mb-8 bg-white rounded-lg shadow">
             <div class="p-4 sm:p-6">
                 <!-- Header Section -->
-                <div class="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 mb-6">
-                    <h2 class="text-2xl font-bold text-gray-800 text-center sm:text-left">My Challenges</h2>
+                <div class="flex flex-col mb-6 space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+                    <h2 class="text-2xl font-bold text-center text-gray-800 sm:text-left">My Challenges</h2>
                     <button wire:click="$dispatch('openCreateChallengeModal')" 
-                            class="px-4 py-2 font-semibold text-white transition-colors bg-blue-600 rounded-lg shadow hover:bg-blue-700 w-full sm:w-auto">
+                            class="w-full px-4 py-2 font-semibold text-white transition-colors bg-blue-600 rounded-lg shadow hover:bg-blue-700 sm:w-auto">
                         Create Challenge
                     </button>
                 </div>
@@ -27,7 +27,7 @@
                 </div>
                 <div class="flex flex-col space-y-4 lg:flex-row lg:space-y-0 lg:space-x-4 lg:items-center">
                     <select wire:model.live="statusFilter"
-                        class="w-full lg:w-48 px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg lg:w-48 focus:ring-blue-500 focus:border-blue-500">
                         <option value="all">All Status</option>
                         <option value="Ongoing">Ongoing</option>
                         <option value="Completed">Completed</option>

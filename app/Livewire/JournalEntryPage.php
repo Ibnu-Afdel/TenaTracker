@@ -27,6 +27,11 @@ class JournalEntryPage extends Component
     public array $tags = [];
     public string $tagInput = '';
     public array $blocks = [];
+    public array $shared_links = [];
+    public array $newLink = [
+        'url' => '',
+        'caption' => ''
+    ];
 
     public function rules(): array
     {
@@ -34,6 +39,11 @@ class JournalEntryPage extends Component
             'title' => ['required', 'min:3', 'max:255'],
             'date' => ['required', 'date'],
             'tags' => ['array'],
+            'shared_links' => ['array'],
+            'shared_links.*.url' => ['required', 'url'],
+            'shared_links.*.caption' => ['required', 'string', 'max:255'],
+            'newLink.url' => ['nullable', 'url'],
+            'newLink.caption' => ['nullable', 'string', 'max:255'],
             'blocks' => ['required', 'array', 'min:1'],
             'blocks.*.type' => ['required', 'string', 'in:text,code,image'],
             'blocks.*.content' => [
@@ -235,6 +245,33 @@ class JournalEntryPage extends Component
         }
     }
 
+    public function addLink()
+    {
+        $this->validateOnly('newLink.url', [
+            'newLink.url' => ['required', 'url'],
+            'newLink.caption' => ['required', 'string', 'max:255'],
+        ]);
+
+        $this->shared_links[] = [
+            'url' => $this->newLink['url'],
+            'caption' => $this->newLink['caption']
+        ];
+
+        // Reset the form
+        $this->newLink = [
+            'url' => '',
+            'caption' => ''
+        ];
+    }
+
+    public function removeLink($index)
+    {
+        if (isset($this->shared_links[$index])) {
+            unset($this->shared_links[$index]);
+            $this->shared_links = array_values($this->shared_links);
+        }
+    }
+
     public function save()
     {
         $this->validate();
@@ -246,24 +283,33 @@ class JournalEntryPage extends Component
             }
         }
 
-        JournalEntry::create([
+        // Create the journal entry
+        $journalEntry = JournalEntry::create([
             'user_id' => Auth::id(),
             'challenge_id' => $this->challengeId,
             'title' => $this->title,
-            'content' => null, // Setting to null since we use blocks now
+            'content' => null,
             'date' => $this->date,
             'blocks' => $this->blocks,
             'tags' => $this->tags,
         ]);
-        
+
+        // Create the links
+        foreach ($this->shared_links as $link) {
+            $journalEntry->links()->create([
+                'url' => $link['url'],
+                'caption' => $link['caption']
+            ]);
+        }
+
         session()->flash('message', 'Journal entry saved successfully!');
         return $this->redirectRoute('challenges.detail', ['challengeId' => $this->challengeId]);
     }
     
     public function render()
     {
-        return view('livewire.journal-entry-page')->with('layout', 'layouts.app'); 
-            // ->layout('layouts.app');
+        return view('livewire.journal-entry-page')
+            ->layout('layouts.app');
     }
 }
 
