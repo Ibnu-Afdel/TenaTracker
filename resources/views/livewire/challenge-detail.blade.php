@@ -1,87 +1,157 @@
-<div class="p-6">
-    <h2 class="text-xl font-bold">{{ $challenge->name }}</h2>
-    <p class="text-gray-600">{{ $challenge->description }}</p>
-    <p class="text-sm text-gray-500">Start: {{ $challenge->start_date }} | End: {{ $challenge->end_date }}</p>
-
-    <!-- Tags -->
-    <div class="mt-2">
-        @foreach($challenge->tags as $tag)
-            <span class="px-2 py-1 text-sm text-blue-800 bg-blue-100 rounded-full">{{ $tag->name }}</span>
-        @endforeach
+<div>
+    <!-- Loading Spinner -->
+    <div wire:loading class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
+        <div class="w-12 h-12 border-t-2 border-b-2 border-blue-500 rounded-full animate-spin"></div>
     </div>
-
-    <!-- Status & Actions -->
-    {{-- <div class="flex items-center mt-4 space-x-4">
-        <button wire:click="toggleStatus" class="px-3 py-1 rounded text-white 
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <div class="overflow-hidden bg-white shadow-xl sm:rounded-2xl">
+            <!-- Hero Section -->
+            <div class="relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-50"></div>
+            <div class="relative px-6 py-10 sm:px-8 sm:py-14">
+                <div class="flex flex-col items-start justify-between gap-8 lg:flex-row">
+                    <div class="w-full space-y-6 text-center lg:w-2/3 lg:text-center">
+                        <h1 class="mb-6 text-6xl font-bold tracking-tight text-gray-900">{{ $this->challenge->name }}</h1>
+                        <p class="mt-4 text-lg leading-relaxed text-gray-600">{{ $this->challenge->description }}</p>
+                        <div class="flex flex-wrap gap-2 mt-6">
+                        @foreach($this->challenge->tags as $tag)
+                            <span class="inline-flex items-center px-3 py-1 text-sm font-medium text-blue-700 transition-colors rounded-full bg-blue-50 ring-1 ring-inset ring-blue-600/20">
+                            {{ $tag->name }}
+                            </span>
+                        @endforeach
+                        </div>
+        {{-- <div class="flex items-center mt-4 space-x-4">
+            <button wire:click="toggleStatus" class="px-3 py-1 rounded text-white 
+                    {{ $challenge->status === 'Ongoing' ? 'bg-green-500' : ($challenge->status === 'Completed' ? 'bg-blue-500' : 'bg-gray-500') }}">
+                {{ $challenge->status }}
+            </button>
+    
+            <button wire:click="$set('confirmingDelete', true)" class="px-3 py-1 text-white bg-red-500 rounded">
+                Delete Challenge
+            </button>
+        </div> --}}
+    
+    
+        <div class="flex items-center justify-center gap-4 mt-8">
+        <button 
+            wire:click="toggleStatus" 
+            class="inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-colors
+            {{ $challenge->status === 'Ongoing' ? 'bg-green-100 text-green-700 hover:bg-green-200' : 
+            ($challenge->status === 'Completed' ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' : 'bg-gray-100 text-gray-700 hover:bg-gray-200') }}">
+            <span class="relative flex w-2 h-2 mr-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75
+                {{ $challenge->status === 'Ongoing' ? 'bg-green-400' : ($challenge->status === 'Completed' ? 'bg-blue-400' : 'bg-gray-400') }}">
+            </span>
+            <span class="relative inline-flex rounded-full h-2 w-2
                 {{ $challenge->status === 'Ongoing' ? 'bg-green-500' : ($challenge->status === 'Completed' ? 'bg-blue-500' : 'bg-gray-500') }}">
+            </span>
+            </span>
             {{ $challenge->status }}
         </button>
-
-        <button wire:click="$set('confirmingDelete', true)" class="px-3 py-1 text-white bg-red-500 rounded">
+            
+        <button 
+            wire:click="deleteChallenge" 
+            class="inline-flex items-center px-4 py-2 text-sm font-medium text-red-700 transition-colors rounded-lg bg-red-50 hover:bg-red-100">
+            <svg class="w-4 h-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+            </svg>
             Delete Challenge
         </button>
-    </div> --}}
-
-
-    <div class="flex items-center mt-4 space-x-4">
-        <button wire:click="toggleStatus" class="px-3 py-1 rounded text-white 
-                {{ $challenge->status === 'Ongoing' ? 'bg-green-500' : ($challenge->status === 'Completed' ? 'bg-blue-500' : 'bg-gray-500') }}">
-            {{ $challenge->status }}
-        </button>
-    
-        <button wire:click="deleteChallenge" class="px-3 py-1 text-white bg-red-500 rounded">
-            Delete Challenge
-        </button>
-    </div>
-    
-
-    <!-- Delete Confirmation Modal -->
-    @if($confirmingDelete)
-    <div class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
-        <div class="p-6 bg-white rounded-lg">
-            <p class="text-lg">Are you sure you want to delete this challenge?</p>
-            <div class="flex justify-between mt-4">
-                <button wire:click="$set('confirmingDelete', false)" class="px-4 py-2 text-white bg-gray-500 rounded">Cancel</button>
-                <button wire:click="deleteChallenge" class="px-4 py-2 text-white bg-red-500 rounded">Delete</button>
-            </div>
         </div>
     </div>
-    @endif
-
-    <!-- Journal Entries Section -->
-    <div class="mt-6">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-lg font-semibold">Journal Entries</h2>
-            <a href="{{ route('journal.create', ['challengeId' => $challenge->id]) }}"
-                class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
-                Add Entry
-            </a>
-        </div>
-
-        <div wire:loading class="text-center text-gray-500">Loading...</div>
-
-        @foreach($journalEntries as $entry)
-            <div class="p-4 mt-2 border rounded hover:bg-gray-50">
-                <div class="flex justify-between items-start">
-                    <h4 class="font-semibold">{{ $entry->title }}</h4>
-                    <span class="text-sm text-gray-500">{{ $entry->date }}</span>
+            <div class="w-full mt-8 lg:w-1/3 lg:mt-0">
+                <div class="grid w-full grid-cols-3 gap-6 p-6 bg-white shadow-sm rounded-xl ring-1 ring-gray-200">
+                    <div class="text-center">
+                        <dt class="text-sm font-medium text-gray-500">Total Entries</dt>
+                        <dd class="mt-1 text-2xl font-semibold text-gray-900">{{ $journalEntries->total() }}</dd>
+                    </div>
+                    <div class="text-center">
+                        <dt class="text-sm font-medium text-gray-500">Days Active</dt>
+                        <dd class="mt-1 text-2xl font-semibold text-gray-900">{{ intval($this->challenge->created_at->diffInDays(now())) }}</dd>
+                    </div>
+                    <div class="text-center">
+                        <dt class="text-sm font-medium text-gray-500">Last Activity</dt>
+                        <dd class="mt-1 text-2xl font-semibold text-gray-900">{{ $journalEntries->first()?->created_at->diffForHumans() ?? 'Never' }}</dd>
+                    </div>
                 </div>
-                <p class="mt-2 text-gray-800">{{ $entry->content }}</p>
-                @if($entry->code_snippet)
-                    <pre class="mt-2 p-2 bg-gray-100 rounded"><code>{{ $entry->code_snippet }}</code></pre>
-                @endif
-                @if($entry->shared_link)
-                    <a href="{{ $entry->shared_link }}" target="_blank" class="mt-2 text-blue-500 hover:underline inline-block">
-                        Shared Link →
-                    </a>
-                @endif
             </div>
-        @endforeach
-
-        <!-- Pagination -->
-        <div class="mt-4">
-            {{ $journalEntries->links() }}
         </div>
     </div>
-
     </div>
+    </div>
+        
+    
+        <!-- Delete Confirmation Modal -->
+        @if($confirmingDelete)
+        <div class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+            <div class="p-6 bg-white rounded-lg">
+                <p class="text-lg">Are you sure you want to delete this challenge?</p>
+                <div class="flex justify-between mt-4">
+                    <button wire:click="$set('confirmingDelete', false)" class="px-4 py-2 text-white bg-gray-500 rounded">Cancel</button>
+                    <button wire:click="deleteChallenge" class="px-4 py-2 text-white bg-red-500 rounded">Delete</button>
+                </div>
+            </div>
+        </div>
+        @endif
+    
+        <!-- Journal Entries Section -->
+        <div class="px-6 py-10 sm:px-8 sm:py-14">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-2xl font-bold text-gray-900">Journal Entries</h2>
+                <a href="{{ route('journal.create', ['challengeId' => $challenge->id]) }}"
+                    class="inline-flex items-center px-4 py-2 text-sm font-medium text-white transition-colors bg-indigo-600 rounded-lg shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                    <svg class="w-5 h-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+                    </svg>
+                    Add New Entry
+                </a>
+                </a>
+            </div>
+    
+            <div wire:loading class="text-center text-gray-500">Loading...</div>
+    
+            <div class="grid gap-6">
+                @foreach($journalEntries as $entry)
+                <div class="overflow-hidden transition-shadow bg-white shadow-sm rounded-xl ring-1 ring-gray-200 hover:shadow-md">
+                    <div class="p-6">
+                    <div class="flex items-start justify-between gap-4">
+                        <h3 class="text-lg font-semibold text-gray-900">{{ $entry->title }}</h3>
+                        <time class="text-sm text-gray-500 tabular-nums" datetime="{{ $entry->date }}">
+                        {{ \Carbon\Carbon::parse($entry->date)->format('M j, Y') }}
+                        </time>
+                    </div>
+                    <p class="mt-4 leading-relaxed text-gray-600">{{ $entry->content }}</p>
+                    
+                    @if($entry->code_snippet)
+                        <div class="relative mt-4">
+                        <div class="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-50/50 to-indigo-50/50"></div>
+                        <pre class="relative p-4 overflow-x-auto rounded-lg bg-white/80 backdrop-blur-sm"><code class="text-sm text-gray-800">{{ $entry->code_snippet }}</code></pre>
+                        </div>
+                    @endif
+                    </div>
+                    
+                    @if($entry->shared_link)
+                    <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+                        <a 
+                        href="{{ route('shared.journal', ['shareToken' => $entry->shared_link]) }}"
+                        class="inline-flex items-center text-sm font-medium text-gray-500 transition-colors hover:text-gray-900"
+                        >
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                        </svg>
+                        Share Entry
+                        </a>
+                    </div>
+                    @endif
+                </div>
+                @endforeach
+            </div>
+    
+            <!-- Pagination -->
+            <div class="mt-8">
+                {{ $journalEntries->links() }}
+            </div>
+        </div>
+    
+    </div>
+    

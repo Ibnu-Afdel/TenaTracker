@@ -16,19 +16,26 @@ class JournalEntryForm extends Component
     public $challengeId = null;
     public $entryId = null;
     public $content;
+    // public $content;
     public $date;
-    public $image;
-    public $code_snippet;
+    public $images = [];
+    public $code_snippets = [];
+    public $tags = [];
     public $is_public = false;
     public $links = [];
     public $newUrl = '';
     public $newCaption = '';
-
+    public $newCodeSnippet = '';
+    public $newCodeLanguage = 'php';
     protected $rules = [
         'content' => 'required|string|min:10',
         'date' => 'required|date',
-        'image' => 'nullable|image|max:2048',
-        'code_snippet' => 'nullable|string',
+        'images.*' => 'nullable|image|max:2048',
+        'code_snippets' => 'nullable|array',
+        'code_snippets.*.code' => 'required|string',
+        'code_snippets.*.language' => 'required|string',
+        'tags' => 'nullable|array',
+        'tags.*' => 'string|max:50',
         'links.*.url' => 'required|url',
         'links.*.caption' => 'nullable|string|max:255',
     ];
@@ -38,9 +45,11 @@ class JournalEntryForm extends Component
         'content.min' => 'Content must be at least 10 characters.',
         'date.required' => 'Entry date is required.',
         'date.date' => 'Please enter a valid date.',
-        'image.image' => 'Uploaded file must be an image.',
-        'image.max' => 'Image size must be under 2MB.',
-        'code_snippet.string' => 'Code snippet must be text.',
+        'images.*.image' => 'Uploaded files must be images.',
+        'images.*.max' => 'Image size must be under 2MB.',
+        'code_snippets.*.code.required' => 'Code snippet content is required.',
+        'code_snippets.*.language.required' => 'Programming language is required.',
+        'tags.*.max' => 'Each tag cannot exceed 50 characters.',
         'links.*.url.required' => 'URL is required for each link.',
         'links.*.url.url' => 'Please enter a valid URL.',
         'links.*.caption.max' => 'Link caption cannot exceed 255 characters.',
@@ -68,7 +77,7 @@ class JournalEntryForm extends Component
 
     protected function resetForm()
     {
-        $this->reset(['content', 'date', 'image', 'code_snippet', 'is_public', 'links', 'newUrl', 'newCaption']);
+        $this->reset(['content', 'date', 'images', 'code_snippets', 'tags', 'is_public', 'links', 'newUrl', 'newCaption', 'newCodeSnippet', 'newCodeLanguage']);
     }
 
     public function mount($challengeId = null, $entryId = null)
@@ -84,10 +93,8 @@ class JournalEntryForm extends Component
             $this->content = $entry->content;
             $this->date = $entry->date;
             $this->is_public = $entry->is_public;
-            $this->code_snippet = $entry->code_snippet;
-            // $this->links = $entry->links->map(function ($link) {
-            //     return ['url' => $link->url, 'caption' => $link->caption];
-            // })->toArray();
+            $this->code_snippets = json_decode($entry->code_snippets ?? '[]', true) ?: [];
+            $this->tags = json_decode($entry->tags ?? '[]', true) ?: [];
             $this->links = $entry->links ? $entry->links->map(fn ($link) => ['url' => $link->url, 'caption' => $link->caption])->toArray() : [];
 
         }
@@ -106,6 +113,42 @@ class JournalEntryForm extends Component
     {
         unset($this->links[$index]);
         $this->links = array_values($this->links);
+    }
+
+    public function addCodeSnippet()
+    {
+        if (!empty($this->newCodeSnippet)) {
+            $this->code_snippets[] = [
+                'code' => $this->newCodeSnippet,
+                'language' => $this->newCodeLanguage
+            ];
+            $this->newCodeSnippet = '';
+            $this->newCodeLanguage = 'php';
+        }
+    }
+
+    public function removeCodeSnippet($index)
+    {
+        unset($this->code_snippets[$index]);
+        $this->code_snippets = array_values($this->code_snippets);
+    }
+
+    public function handleTags($tagString)
+    {
+        $tags = array_map('trim', explode(',', $tagString));
+        $this->tags = array_values(array_unique(array_filter($tags)));
+    }
+
+    public function removeTag($index)
+    {
+        unset($this->tags[$index]);
+        $this->tags = array_values($this->tags);
+    }
+
+    public function removeImage($index)
+    {
+        unset($this->images[$index]);
+        $this->images = array_values($this->images);
     }
 
     public function saveJournalEntry()
@@ -127,13 +170,17 @@ class JournalEntryForm extends Component
                 'content' => $this->content,
                 'date' => $this->date,
                 'is_public' => $this->is_public,
-                'code_snippet' => $this->code_snippet,
+                'code_snippets' => json_encode($this->code_snippets),
+                'tags' => json_encode($this->tags),
             ]
         );
 
-        if ($this->image) {
-            $imagePath = $this->image->store('journal-images', 'public');
-            $entry->update(['image' => $imagePath]);
+        if (!empty($this->images)) {
+            $imagePaths = [];
+            foreach ($this->images as $image) {
+                $imagePaths[] = $image->store('journal-images', 'public');
+            }
+            $entry->update(['images' => json_encode($imagePaths)]);
         }
 
         JournalLink::where('journal_entry_id', $entry->id)->delete();

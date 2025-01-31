@@ -13,7 +13,7 @@ class Challenge extends Model
     /** @use HasFactory<\Database\Factories\ChallengeFactory> */
     use HasFactory;
 
-    protected $fillable = ['name', 'description', 'user_id', 'start_date', 'end_date', 'status', 'is_favorite'];
+    protected $fillable = ['name', 'description', 'user_id', 'start_date', 'end_date', 'status', 'is_favorite', 'sharing_token'];
 
     public function user(): BelongsTo {
         return $this->belongsTo(User::class);

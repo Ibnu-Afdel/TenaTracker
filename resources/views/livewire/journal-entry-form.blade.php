@@ -48,10 +48,10 @@
                                                             </div>
                                                         @endforeach
                                                     </div>
-                                                    <div class="mt-2 flex space-x-2">
+                                                    <div class="flex mt-2 space-x-2">
                                                         <input type="url" wire:model="newUrl" placeholder="URL" class="w-1/2 p-2 border rounded">
                                                         <input type="text" wire:model="newCaption" placeholder="Caption" class="w-1/2 p-2 border rounded">
-                                                        <button type="button" wire:click="addLink" class="p-2 bg-blue-500 text-white rounded">Add Link</button>
+                                                        <button type="button" wire:click="addLink" class="p-2 text-white bg-blue-500 rounded">Add Link</button>
                                                     </div>
                                                     @error('links.*.url') <p class="text-sm text-red-500">{{ $message }}</p> @enderror
                                                     @error('links.*.caption') <p class="text-sm text-red-500">{{ $message }}</p> @enderror

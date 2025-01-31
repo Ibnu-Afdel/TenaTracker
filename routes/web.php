@@ -3,10 +3,14 @@
 use App\Http\Controllers\ProfileController;
 use App\Livewire\ChallengeDetail;
 use App\Livewire\ChallengesDashboard;
+use App\Livewire\SharedChallenge;
 use App\Livewire\JournalEntryPage;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome');
+
+Route::get('/shared/challenges/{shareToken}', SharedChallenge::class)->name('shared.challenges');
+Route::get('/shared/journal/{shareToken}', App\Livewire\SharedJournalEntry::class)->name('shared.journal');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

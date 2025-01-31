@@ -12,21 +12,39 @@ class JournalEntry extends Model
     /** @use HasFactory<\Database\Factories\JournalEntryFactory> */
     use HasFactory;
 
+    protected $casts = [
+        'date' => 'date',
+        'is_public' => 'boolean',
+        'blocks' => 'array',
+        'tags' => 'array',
+    ];
+
     protected $fillable = [
         'challenge_id',
         'date',
         'content',
-        'image',
-        'code_snippet',
+        'blocks',
+        'tags',
         'is_public',
+        'shared_link',
     ];
 
     protected static function boot()
     {
         parent::boot();
-        static::creating(function ($journalEntry) {
-            $journalEntry->shared_link = \Illuminate\Support\Str::uuid();
+        static::creating(function ($entry) {
+            if (!$entry->shared_link) {
+                $entry->shared_link = (string) \Illuminate\Support\Str::uuid();
+            }
         });
+    }
+
+    public function getShareUrl()
+    {
+        if ($this->shared_link) {
+            return route('shared.journal', ['shareToken' => $this->shared_link]);
+        }
+        return null;
     }
     
     public function challenge():BelongsTo {
