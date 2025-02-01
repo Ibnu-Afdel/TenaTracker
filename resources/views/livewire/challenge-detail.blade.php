@@ -121,14 +121,33 @@
     
             <div class="grid gap-6">
                 @foreach($journalEntries as $entry)
-                <div class="overflow-hidden transition-shadow bg-white shadow-sm rounded-xl ring-1 ring-gray-200 hover:shadow-md">
-                    <div class="p-6">
-                        <div class="flex items-start justify-between gap-4">
-                            <h3 class="text-lg font-semibold text-gray-900">{{ $entry->title }}</h3>
-                            <time class="text-sm text-gray-500 tabular-nums" datetime="{{ $entry->date }}">
-                                {{ \Carbon\Carbon::parse($entry->date)->format('M j, Y') }}
-                            </time>
-                        </div>
+                    @if(!$entry->is_private || (auth()->check() && $entry->user_id === auth()->id()))
+                        <div class="overflow-hidden transition-shadow bg-white shadow-sm rounded-xl ring-1 ring-gray-200 hover:shadow-md">
+                            <div class="p-6">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div class="flex items-center gap-3">
+                                        <h3 class="text-lg font-semibold text-gray-900">{{ $entry->title }}</h3>
+                                        @if($entry->is_private)
+                                            <span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full text-amber-700 bg-amber-50 ring-1 ring-inset ring-amber-600/20">
+                                                <svg class="w-3 h-3 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                                                </svg>
+                                                Private Entry
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full text-green-700 bg-green-50 ring-1 ring-inset ring-green-600/20">
+                                                <svg class="w-3 h-3 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                                                    <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                                                </svg>
+                                                Public Entry
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <time class="text-sm text-gray-500 tabular-nums" datetime="{{ $entry->date }}">
+                                        {{ \Carbon\Carbon::parse($entry->date)->format('M j, Y') }}
+                                    </time>
+                                </div>
 
                         <!-- Display the tags for the journal -->
                         @if($entry->tags && count($entry->tags) > 0)
@@ -143,19 +162,25 @@
 
                     </div>
                     
-                    @if($entry->shared_link)
-                        <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
-                            <a href="{{ route('shared.journal', ['shareToken' => $entry->shared_link]) }}"
-                            class="inline-flex items-center text-sm font-medium text-gray-500 transition-colors hover:text-gray-900">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
-                                </svg>
-                                Share Entry
-                            </a>
+                    <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+                        <div class="flex items-center justify-between">
+                            @if(!$entry->is_private)
+                                <a href="{{ route('shared.journal', ['shareToken' => $entry->shared_link]) }}"
+                                    class="inline-flex items-center text-sm font-medium text-gray-500 transition-colors hover:text-gray-900">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+                                    </svg>
+                                    Share Entry
+                                </a>
+                            @endif
+                            @if($entry->user_id === auth()->id())
+                                <span class="text-sm text-gray-500">Your Entry</span>
+                            @endif
                         </div>
-                    @endif
+                    </div>
                 </div>
-                @endforeach
+            @endif
+        @endforeach
             </div>
     
             <!-- Pagination -->

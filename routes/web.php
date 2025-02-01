@@ -9,9 +9,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome');
 
+// Public routes - no auth required
 Route::get('/shared/challenges/{shareToken}', SharedChallenge::class)->name('shared.challenges');
 Route::get('/shared/journal/{shareToken}', App\Livewire\SharedJournalEntry::class)->name('shared.journal');
 
+// Protected routes - require authentication
 Route::middleware(['auth'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

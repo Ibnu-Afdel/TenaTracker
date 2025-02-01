@@ -22,7 +22,7 @@
                             <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
-                    
+
                     <div>
                         <div class="mb-4">
                             <div class="flex space-x-2">
@@ -190,7 +190,7 @@
                             @if(count($shared_links) > 0)
                                 <div class="mt-3 space-y-3">
                                     @foreach($shared_links as $index => $link)
-                                        <div class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg group">
+                                        <div class="flex items-center gap-2 p-3 rounded-lg bg-gray-50 group">
                                             <div class="flex-1">
                                                 <h4 class="text-sm font-medium text-gray-900">{{ $link['caption'] }}</h4>
                                                 <a href="{{ $link['url'] }}" target="_blank" rel="noopener noreferrer" 
@@ -210,6 +210,14 @@
                                 </div>
                             @endif
                         </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" wire:model="is_private" class="form-checkbox rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                            <span class="ml-2 text-gray-700">Make this entry private</span>
+                        </label>
+                        <p class="text-sm text-gray-500 mt-1">When private, this entry can only be accessed by you</p>
                     </div>
 
                     <div class="flex justify-end space-x-3">

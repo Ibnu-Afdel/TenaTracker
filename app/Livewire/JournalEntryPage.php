@@ -33,6 +33,21 @@ class JournalEntryPage extends Component
         'caption' => ''
     ];
 
+    public $is_private = false;
+
+    public function getShareUrlProperty()
+    {
+        if (!$this->is_private && $this->challengeId) {
+            $entry = JournalEntry::where('challenge_id', $this->challengeId)
+                            ->where('user_id', Auth::id())
+                            ->first();
+            if ($entry && $entry->shared_link) {
+                return route('journal.shared', ['token' => $entry->shared_link]);
+            }
+        }
+        return null;
+    }
+
     public function rules(): array
     {
         return [
@@ -292,6 +307,7 @@ class JournalEntryPage extends Component
             'date' => $this->date,
             'blocks' => $this->blocks,
             'tags' => $this->tags,
+            'is_private' => $this->is_private,
         ]);
 
         // Create the links

@@ -17,9 +17,9 @@ return new class extends Migration
             $table->string('title');
             $table->date('date');
             $table->text('content');
+            $table->boolean('is_private')->default(false);
             $table->string('image')->nullable();
             $table->text('code_snippet')->nullable();
-            $table->boolean('is_public')->default(false);
             $table->string('shared_link')->nullable()->unique();
             $table->timestamps();
         });

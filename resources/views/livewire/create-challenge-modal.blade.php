@@ -1,7 +1,7 @@
 <div>
     @if($showForm)
         <!-- Modal Backdrop -->
-        <div 
+        <div
             class="fixed inset-0 bg-gray-900/75 transition-opacity duration-300 ease-in-out z-50"
             x-transition:enter="ease-out duration-300"
             x-transition:enter-start="opacity-0"
@@ -19,7 +19,7 @@
                         x-transition:leave="ease-in duration-200"
                         x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
                         x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
-                        
+
                         <!-- Modal Header -->
                         <div class="absolute right-0 top-0 hidden pr-4 pt-4 sm:block">
                             <button type="button" wire:click="closeModal" class="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
@@ -29,7 +29,7 @@
                                 </svg>
                             </button>
                         </div>
-                        
+
                         <div class="sm:flex sm:items-start">
                             <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
                                 <h3 class="text-xl font-semibold leading-6 text-gray-900">Create New Challenge</h3>
