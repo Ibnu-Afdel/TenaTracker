@@ -12,7 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('journal_entries', function (Blueprint $table) {
-            // Add nullable column first to handle existing records
             $table->unsignedBigInteger('user_id')->nullable();
             $table->foreign('user_id')
                 ->references('id')
@@ -20,8 +19,6 @@ return new class extends Migration
                 ->onDelete('cascade');
         });
 
-        // Note: After running this migration, you need to update existing records
-        // with a valid user_id before making the column non-nullable
     }
 
     /**

@@ -24,6 +24,8 @@ class JournalEntryPage extends Component
 
     public string $title = '';
     public string $date;
+    public bool $is_private = false; 
+
     public array $tags = [];
     public string $tagInput = '';
     public array $blocks = [];
@@ -32,22 +34,6 @@ class JournalEntryPage extends Component
         'url' => '',
         'caption' => ''
     ];
-
-    public $is_private = false;
-
-    public function getShareUrlProperty()
-    {
-        if (!$this->is_private && $this->challengeId) {
-            $entry = JournalEntry::where('challenge_id', $this->challengeId)
-                            ->where('user_id', Auth::id())
-                            ->first();
-            if ($entry && $entry->shared_link) {
-                return route('journal.shared', ['token' => $entry->shared_link]);
-            }
-        }
-        return null;
-    }
-
     public function rules(): array
     {
         return [
@@ -175,7 +161,7 @@ class JournalEntryPage extends Component
     public function removeBlock(int $index)
     {
         if (isset($this->blocks[$index])) {
-            // If it's an image block, clean up the stored file
+            
             if ($this->blocks[$index]['type'] === self::TYPE_IMAGE &&
                 isset($this->blocks[$index]['content']) &&
                 !($this->blocks[$index]['content'] instanceof TemporaryUploadedFile) &&
@@ -232,12 +218,10 @@ class JournalEntryPage extends Component
 
     public function addTagFromInput($keyCode)
     {
-        // Handle Enter (13) or Tab (9)
         if (in_array($keyCode, [9, 13])) {
             if (!empty($this->tagInput)) {
                 $this->addTag();
             }
-            // Prevent form submission and default behavior
             $this->dispatch('prevent-submit');
             return false;
         }
@@ -272,7 +256,6 @@ class JournalEntryPage extends Component
             'caption' => $this->newLink['caption']
         ];
 
-        // Reset the form
         $this->newLink = [
             'url' => '',
             'caption' => ''
@@ -298,7 +281,7 @@ class JournalEntryPage extends Component
             }
         }
 
-        // Create the journal entry
+        
         $journalEntry = JournalEntry::create([
             'user_id' => Auth::id(),
             'challenge_id' => $this->challengeId,
@@ -310,7 +293,7 @@ class JournalEntryPage extends Component
             'is_private' => $this->is_private,
         ]);
 
-        // Create the links
+
         foreach ($this->shared_links as $link) {
             $journalEntry->links()->create([
                 'url' => $link['url'],

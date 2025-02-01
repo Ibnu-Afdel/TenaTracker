@@ -59,7 +59,7 @@
                 </div>
 
                 <!-- Challenges Grid -->
-                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                <div class="grid grid-cols-1 gap-6 mt-2 sm:grid-cols-2 lg:grid-cols-3">
                     @foreach($this->challenges as $challenge)
                         <div class="relative overflow-hidden transition-all duration-300 bg-white border shadow-sm rounded-xl hover:shadow-lg hover:border-blue-100 hover:ring-1 hover:ring-blue-100">
                             <div class="p-6">
@@ -105,7 +105,6 @@
                                     </div>
                                 @endif
 
-                                <!-- Footer -->
                                 <div class="flex items-center justify-between pt-4 mt-4 border-t border-gray-200">
                                     <span class="inline-flex items-center px-3 py-1 text-sm rounded-full
                                         {{ $challenge->status === 'Ongoing' ? 'bg-green-100 text-green-800' :
@@ -113,7 +112,7 @@
                                         <span class="w-2 h-2 mr-2 rounded-full
                                             {{ $challenge->status === 'Ongoing' ? 'bg-green-400' :
                                             ($challenge->status === 'Completed' ? 'bg-blue-400' : 'bg-yellow-400') }}"></span>
-                                        {{ $challefinge->status }}
+                                        {{ $challenge->status }}
                                     </span>
                                     <span class="text-sm text-gray-500">
                                          {{ $challenge->created_at->diffForHumans() }}
@@ -170,6 +169,8 @@
             </div>
         </div>
     </div>
+
+    
 
     <!-- Create Challenge Modal Component -->
     @livewire('create-challenge-modal')

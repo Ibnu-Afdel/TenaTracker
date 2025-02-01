@@ -19,14 +19,9 @@ class ChallengesDashboard extends Component
     #[On('challengeCreated')] 
     public function refreshChallenges()
     {
-        // This method will be called when 'challengeCreated' event is emitted
-        // The #[Computed] property will automatically refresh
+    
     }
 
-    // public function editChallenge($challengeId)
-    // {
-    //     $this->dispatch('editChallenge', $challengeId);
-    // }
 
     public function editChallenge($challengeId)
 {

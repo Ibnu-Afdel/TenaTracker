@@ -14,7 +14,6 @@ class SharedJournalEntry extends Component
     {
         $this->entry = JournalEntry::where('shared_link', $shareToken)->firstOrFail();
         
-        // For private entries: require login AND ownership
         if ($this->entry->is_private) {
             if (!Auth::check()) {
                 abort(403, 'Please login to view this private entry.');
@@ -24,7 +23,7 @@ class SharedJournalEntry extends Component
                 abort(403, 'You do not have permission to view this private entry.');
             }
         }}
-        // Public entries are accessible to everyone - no check needed
+       
 
     public function render()
     {
