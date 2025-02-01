@@ -13,12 +13,47 @@ class ChallengesDashboard extends Component
     public $search = '';
     public $statusFilter = 'all';
     public $favoritesOnly = false;
+    public $showDeleteModal = false;
+    public $challengeToDelete = null;
 
     #[On('challengeCreated')] 
     public function refreshChallenges()
     {
         // This method will be called when 'challengeCreated' event is emitted
         // The #[Computed] property will automatically refresh
+    }
+
+    // public function editChallenge($challengeId)
+    // {
+    //     $this->dispatch('editChallenge', $challengeId);
+    // }
+
+    public function editChallenge($challengeId)
+{
+    $this->dispatch('editChallenge', challengeId: $challengeId);
+}
+    public function confirmDelete($challengeId)
+    {
+        $this->challengeToDelete = $challengeId;
+        $this->showDeleteModal = true;
+    }
+
+    public function cancelDelete()
+    {
+        $this->showDeleteModal = false;
+        $this->challengeToDelete = null;
+    }
+
+    public function deleteChallenge()
+    {
+        if ($this->challengeToDelete) {
+            $challenge = Challenge::where('user_id', Auth::id())
+                ->findOrFail($this->challengeToDelete);
+            $challenge->delete();
+
+            $this->showDeleteModal = false;
+            $this->challengeToDelete = null;
+        }
     }
 
     public function toggleFavorite($challengeId)

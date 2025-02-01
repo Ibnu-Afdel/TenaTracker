@@ -214,10 +214,10 @@
 
                     <div class="mt-4">
                         <label class="inline-flex items-center">
-                            <input type="checkbox" wire:model="is_private" class="form-checkbox rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                            <input type="checkbox" wire:model="is_private" class="text-blue-600 border-gray-300 rounded shadow-sm form-checkbox focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                             <span class="ml-2 text-gray-700">Make this entry private</span>
                         </label>
-                        <p class="text-sm text-gray-500 mt-1">When private, this entry can only be accessed by you</p>
+                        <p class="mt-1 text-sm text-gray-500">When private, this entry can only be accessed by you</p>
                     </div>
 
                     <div class="flex justify-end space-x-3">

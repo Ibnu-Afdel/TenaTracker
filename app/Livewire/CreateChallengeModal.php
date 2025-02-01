@@ -2,76 +2,131 @@
 
 namespace App\Livewire;
 
-use App\Models\Challenge;
 use App\Models\Tag;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Challenge;
 use Livewire\Component;
+use Illuminate\Support\Facades\Auth;
 
 class CreateChallengeModal extends Component
 {
-    public $showForm = false; // Controls modal visibility
-    public $name;
-    public $description;
-    public $start_date;
-    public $end_date;
+    public $showForm = false;
+    public $isEditing = false;
+    public $editingChallengeId = null;
+    public $name = '';
+    public $description = '';
+    public $start_date = '';
+    public $end_date = '';
     public $is_favorite = false;
-    public $selectedTags = [];
-    public $allTags = [];
+    public $tags = [];
+    public $tagInput = '';
 
     protected $rules = [
-        'name' => 'required|string|min:3|max:255',
-        'description' => 'nullable|string|max:1000',
+        'name' => 'required|min:3',
+        'description' => 'required',
         'start_date' => 'required|date',
-        'end_date' => 'nullable|date|after_or_equal:start_date',
-        'selectedTags' => 'array',
+        'end_date' => 'required|date|after_or_equal:start_date',
     ];
 
-    protected $messages = [
-        'name.required' => 'Challenge name is required.',
-        'name.min' => 'Challenge name must be at least 3 characters.',
-        'start_date.required' => 'Start date is required.',
-        'end_date.after_or_equal' => 'End date must be after or equal to the start date.',
+    protected $listeners = [
+        'openCreateChallengeModal' => 'showModal',
+        'editChallenge'
     ];
 
-    protected $listeners = ['openCreateChallengeModal' => 'showModal'];
+    
 
-    public function mount()
+    public function editChallenge($challengeId)
     {
-        $this->allTags = Tag::where('user_id', Auth::id())->get();
+        $challenge = Challenge::with('tags')->findOrFail($challengeId);
+        
+        $this->editingChallengeId = $challengeId;
+        $this->name = $challenge->name;
+        $this->description = $challenge->description;
+        $this->start_date = $challenge->start_date;
+        $this->end_date = $challenge->end_date;
+        $this->is_favorite = $challenge->is_favorite;
+        $this->tags = $challenge->tags->pluck('name')->toArray();
+        
+        $this->isEditing = true;
+        $this->showForm = true;
     }
 
     public function showModal()
     {
+        $this->reset(['isEditing', 'editingChallengeId', 'name', 'description', 'start_date', 'end_date', 'is_favorite', 'tags', 'tagInput']);
         $this->showForm = true;
     }
 
     public function closeModal()
     {
-        $this->reset(['name', 'description', 'start_date', 'end_date', 'is_favorite', 'selectedTags']);
         $this->showForm = false;
+        $this->isEditing = false;
+        $this->reset(['editingChallengeId', 'name', 'description', 'start_date', 'end_date', 'is_favorite', 'tags', 'tagInput']);
     }
 
-    public function createChallenge()
+    public function save()
     {
         $this->validate();
 
-        $challenge = Challenge::create([
-            'name' => $this->name,
-            'description' => $this->description,
-            'start_date' => $this->start_date,
-            'end_date' => $this->end_date,
-            'user_id' => Auth::id(),
-            'is_favorite' => $this->is_favorite,
-        ]);
+        if ($this->isEditing) {
+            $challenge = Challenge::findOrFail($this->editingChallengeId);
+            $challenge->update([
+                'name' => $this->name,
+                'description' => $this->description,
+                'start_date' => $this->start_date,
+                'end_date' => $this->end_date,
+                'is_favorite' => $this->is_favorite,
+            ]);
+        } else {
+            $challenge = Challenge::create([
+                'name' => $this->name,
+                'description' => $this->description,
+                'start_date' => $this->start_date,
+                'end_date' => $this->end_date,
+                'user_id' => Auth::id(),
+                'is_favorite' => $this->is_favorite,
+            ]);
+        }
 
-        if (!empty($this->selectedTags)) {
-            $challenge->tags()->attach($this->selectedTags);
+        if (!empty($this->tags)) {
+            $tagIds = [];
+            foreach ($this->tags as $tagName) {
+                $tag = Tag::firstOrCreate(
+                    ['name' => $tagName, 'user_id' => Auth::id()],
+                    ['name' => $tagName, 'user_id' => Auth::id()]
+                );
+                $tagIds[] = $tag->id;
+            }
+            $challenge->tags()->sync($tagIds);
+        } else {
+            $challenge->tags()->detach();
         }
 
         $this->closeModal();
-
         $this->dispatch('challengeCreated');
     }
+
+
+    public function addTagFromInput()
+{
+    if (!empty($this->tagInput)) {
+        $this->addTag($this->tagInput);
+        $this->tagInput = '';
+    }
+}
+
+public function addTag($tag)
+{
+    $tag = trim($tag);
+    if (!empty($tag) && !in_array($tag, $this->tags)) {
+        $this->tags[] = $tag;
+    }
+}
+
+public function removeTag($index)
+{
+    unset($this->tags[$index]);
+    $this->tags = array_values($this->tags);
+}
 
     public function render()
     {
