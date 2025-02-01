@@ -1,19 +1,18 @@
 #!/bin/bash
-# Make sure this file has executable permissions, run `chmod +x build-app.sh`
-
-# Exit on error
-set -e
+set -e  # Stop script if any command fails
 
 # Install dependencies
 npm install
 
-# Build frontend assets
+# Build assets
 npm run build
 
-# Clear caches
+# Clear and cache Laravel configs
 php artisan optimize:clear
-
-# Cache configurations
 php artisan config:cache
+php artisan event:cache
 php artisan route:cache
 php artisan view:cache
+
+# Run database migrations (without confirmation)
+php artisan migrate --force
