@@ -17,7 +17,11 @@
                     <div>
                         <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
                         <input type="text" wire:model="title" id="title" 
-                            class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                            @class([
+                                'block w-full mt-1 rounded-md shadow-sm sm:text-sm',
+                                'border-red-300 focus:border-red-500 focus:ring-red-500' => $errors->has('title'),
+                                'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500' => !$errors->has('title'),
+                            ])>
                         @error('title') 
                             <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -65,8 +69,15 @@
 
                                     @if($block['type'] === 'text')
                                         <textarea wire:model="blocks.{{ $index }}.content" rows="3"
-                                            class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                            @class([
+                                                'block w-full mt-1 rounded-md shadow-sm sm:text-sm',
+                                                'border-red-300 focus:border-red-500 focus:ring-red-500' => $errors->has("blocks.{$index}.content"),
+                                                'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500' => !$errors->has("blocks.{$index}.content")
+                                            ])
                                             placeholder="Write your content here..."></textarea>
+                                        @error("blocks.{$index}.content")
+                                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                        @enderror
                                     @elseif($block['type'] === 'code')
                                         <div class="space-y-2">
                                             <select wire:model="blocks.{{ $index }}.metadata.language" 
@@ -79,8 +90,15 @@
                                                 <option value="css">CSS</option>
                                             </select>
                                             <textarea wire:model="blocks.{{ $index }}.content" rows="4"
-                                                class="block w-full font-mono border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                @class([
+                                                    'block w-full font-mono rounded-md shadow-sm sm:text-sm',
+                                                    'border-red-300 focus:border-red-500 focus:ring-red-500' => $errors->has("blocks.{$index}.content"),
+                                                    'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500' => !$errors->has("blocks.{$index}.content")
+                                                ])
                                                 placeholder="Paste your code here..."></textarea>
+                                            @error("blocks.{$index}.content")
+                                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                            @enderror
                                         </div>
                                     @elseif($block['type'] === 'image')
                                         <div>
@@ -127,7 +145,11 @@
                     <div>
                         <label for="date" class="block text-sm font-medium text-gray-700">Date</label>
                         <input type="date" wire:model="date" id="date"
-                            class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                            @class([
+                                'block w-full mt-1 rounded-md shadow-sm sm:text-sm',
+                                'border-red-300 focus:border-red-500 focus:ring-red-500' => $errors->has('date'),
+                                'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500' => !$errors->has('date')
+                            ])>
                         @error('date')
                             <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -137,7 +159,11 @@
                     <div>
                         <label for="tags" class="block text-sm font-medium text-gray-700">Tags</label>
                         <div class="space-y-2">
-                            <input type="text" wire:model="tagInput" wire:keydown="addTagFromInput($event.keyCode)" id="tags"
+                            <input type="text" 
+                                wire:model="tagInput" 
+                                wire:keydown.enter.prevent="addTagFromInput($event.keyCode)"
+                                wire:keydown.tab="addTagFromInput($event.keyCode)" 
+                                id="tags"
                                 class="block w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                 placeholder="Add tags (press Enter or Tab to add)">
                             

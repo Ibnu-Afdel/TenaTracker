@@ -2,14 +2,14 @@
 
 namespace App\Livewire;
 
+use Livewire\Component;
 use App\Models\JournalEntry;
 use App\Models\Challenge;
 use Illuminate\Support\Facades\Auth;
-use Livewire\Component;
-use Livewire\Attributes\Rule;
 use Livewire\WithFileUploads;
-use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Livewire\Attributes\Rule;
 
 class JournalEntryPage extends Component
 {
@@ -25,6 +25,7 @@ class JournalEntryPage extends Component
 
     public string $title = '';
     public string $date;
+    private int $dayNumber = 1;
     public bool $is_private = false; 
 
     public array $tags = [];
@@ -41,9 +42,9 @@ class JournalEntryPage extends Component
             'title' => ['required', 'min:3', 'max:255'],
             'date' => ['required', 'date'],
             'tags' => ['array'],
-            'shared_links' => ['array'],
-            'shared_links.*.url' => ['required', 'url'],
-            'shared_links.*.caption' => ['required', 'string', 'max:255'],
+            'shared_links' => ['nullable', 'array'],
+            'shared_links.*.url' => ['nullable', 'url'],
+            'shared_links.*.caption' => ['nullable', 'string', 'max:255'],
             'newLink.url' => ['nullable', 'url'],
             'newLink.caption' => ['nullable', 'string', 'max:255'],
             'blocks' => ['required', 'array', 'min:1'],
@@ -125,7 +126,8 @@ class JournalEntryPage extends Component
             $this->challengeId = $challengeId;
             if ($challengeId) {
                 $challenge = Challenge::findOrFail($challengeId);
-                $this->title = 'Journal Entry for ' . $challenge->title;
+                $this->dayNumber = $this->calculateDayNumber();
+                $this->title = 'Day ' . $this->dayNumber . ' - Journal Entry for ' . $challenge->title;
             }
         }
     }
@@ -135,14 +137,18 @@ class JournalEntryPage extends Component
         if (isset($block['upload']) && $block['upload'] instanceof TemporaryUploadedFile) {
             // Delete old image if it exists
             if (isset($block['content']) && 
-                !($block['content'] instanceof TemporaryUploadedFile) && 
-                Storage::disk('public')->exists($block['content'])) {
-                Storage::disk('public')->delete($block['content']);
+                !($block['content'] instanceof TemporaryUploadedFile)) {
+                // Clean up old path and delete if exists
+                $oldPath = str_replace('public/', '', $block['content']);
+                if (Storage::disk('public')->exists($oldPath)) {
+                    Storage::disk('public')->delete($oldPath);
+                }
             }
             
-            // Store new image
+            // Store new image and ensure proper path
             $path = $block['upload']->store('journal-images', 'public');
-            return $path;
+            // Clean up the path to ensure consistency
+            return str_replace('public/', '', $path);
         }
         return $block['content'] ?? null;
     }
@@ -299,28 +305,32 @@ class JournalEntryPage extends Component
             }
         }
 
-                // Process journal entry
-                $data = [
-                    'user_id' => Auth::id(),
-                    'challenge_id' => $this->challengeId,
-                    'title' => $this->title,
-                    'content' => null,
-                    'date' => $this->date,
-                    'blocks' => $this->blocks,
-                    'tags' => $this->tags,
-                    'is_private' => $this->is_private,
-                ];
+        $data = [
+            'user_id' => Auth::id(),
+            'challenge_id' => $this->challengeId,
+            'title' => $this->title,
+            'content' => null,
+            'date' => $this->date,
+            'blocks' => $this->blocks,
+            'tags' => $this->tags,
+            'is_private' => $this->is_private,
+        ];
 
-                $journalEntry = JournalEntry::updateOrCreate(
-                    ['id' => request()->route('entry')],
-                    $data
-                );
+        $journalEntry = JournalEntry::updateOrCreate(
+            ['id' => request()->route('entry')],
+            $data
+        );
 
-        foreach ($this->shared_links as $link) {
-            $journalEntry->links()->create([
-                'url' => $link['url'],
-                'caption' => $link['caption']
-            ]);
+        // Process shared links if they exist
+        if (!empty($this->shared_links)) {
+            foreach ($this->shared_links as $link) {
+                if (!empty($link['url'])) {
+                    $journalEntry->links()->create([
+                        'url' => $link['url'],
+                        'caption' => $link['caption'] ?? ''
+                    ]);
+                }
+            }
         }
 
         session()->flash('message', 'Journal entry saved successfully!');
@@ -332,5 +342,15 @@ class JournalEntryPage extends Component
         return view('livewire.journal-entry-page')
             ->layout('layouts.app');
     }
-}
 
+    protected function calculateDayNumber()
+    {
+        if (!$this->challengeId) {
+            return 1;
+        }
+        
+        return JournalEntry::where('challenge_id', $this->challengeId)
+                    ->orderBy('created_at')
+                    ->count() + 1;
+    }
+}

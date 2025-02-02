@@ -22,16 +22,17 @@
                     </div>
                 </div>
 
-                <a href="{{ route('challenges.detail', ['challengeId' => $entry->challenge->id]) }}"
-                    class="inline-flex items-center px-4 py-2 mt-2 text-sm font-medium text-white bg-purple-600 rounded-lg shadow-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
-                        </path>
-                    </svg>
-                    Back
-                </a>
+                <div class="px-6 pt-4 pb-2">
+                    <a href="{{ route('challenges.detail', ['challengeId' => $entry->challenge->id]) }}"
+                        class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-purple-700 bg-purple-50 rounded-lg hover:bg-purple-100 hover:text-purple-800 transition-colors duration-200 group focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
+                        <svg class="w-5 h-5 transition-transform duration-200 group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                        Back to Challenge
+                    </a>
+                </div>
 
-                <div class="px-4 py-6 space-y-6 sm:px-6 lg:px-8">
+                <div class="px-4 py-8 space-y-8 sm:px-6 lg:px-8 lg:py-10">
                     @foreach ($entry->blocks as $block)
                         <div>
                             @if ($block['type'] === 'text')
@@ -54,11 +55,38 @@
                                         <pre class="text-gray-300"><code>{{ $block['content'] }}</code></pre>
                                     </div>
                                 </div>
-                            @elseif($block['type'] === 'image')
+                            {{-- @elseif($block['type'] === 'image')
                                 <div class="w-full md:max-w-[70%] mx-auto">
                                     <img src="{{ asset('storage/' . $block['content']) }}"
                                         alt="{{ $block['metadata']['alt'] ?? 'Journal Entry Image' }}"
                                         class="rounded-xl shadow-lg w-full object-cover h-auto max-h-[500px]">
+                                </div>
+                            @endif --}}
+                            @elseif($block['type'] === 'image')
+                                @php
+                                    $imagePath = Str::startsWith($block['content'], 'journal-images/') 
+                                        ? $block['content'] 
+                                        : 'journal-images/' . $block['content'];
+                                    $imageUrl = url('storage/' . $imagePath);
+                                @endphp
+                                <div class="relative w-full lg:max-w-[85%] xl:max-w-[90%] mx-auto mt-6 mb-8 overflow-hidden bg-gray-100 rounded-xl shadow-lg">
+                                    <img 
+                                        src="{{ $imageUrl }}"
+                                        alt="{{ $block['metadata']['alt'] ?? 'Journal entry image' }}"
+                                        class="object-contain w-full h-auto max-h-[700px] lg:max-h-[800px] opacity-0 transition-opacity duration-300 animate-fade-in"
+                                        onload="this.classList.remove('opacity-0')"
+                                        loading="lazy"
+                                        onerror="this.onerror=null; this.parentElement.innerHTML=`
+                                            <div class='p-8 text-center bg-gray-50'>
+                                                <svg class='w-12 h-12 mx-auto text-gray-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                                                    <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'></path>
+                                                </svg>
+                                                <p class='mt-4 text-sm text-gray-600'>Unable to load image</p>
+                                                <p class='mt-2 text-xs text-gray-500'>Error loading: ${this.src}</p>
+                                                <a href='${this.src}' target='_blank' class='inline-block mt-3 text-xs text-blue-600 hover:underline'>Open image in new tab</a>
+                                            </div>
+                                        `"
+                                    >
                                 </div>
                             @endif
                         </div>
