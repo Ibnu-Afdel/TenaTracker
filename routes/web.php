@@ -30,9 +30,29 @@ Route::middleware(['auth'])->group(function () {
 use Illuminate\Support\Facades\Artisan;
 
 Route::get('/migrate', function () {
-    Artisan::call('migrate --force');
-    return "Migration completed!";
+    $output = Artisan::call('migrate --force');
+    return nl2br(Artisan::output()); // Show output for debugging
 });
+
+
+use Illuminate\Support\Facades\DB;
+
+Route::get('/db-test', function () {
+    try {
+        DB::connection()->getPdo();
+        return "✅ Database connection is working!";
+    } catch (\Exception $e) {
+        return "❌ Database connection failed: " . $e->getMessage();
+    }
+});
+
+Route::get('/migrate-fresh', function () {
+    Artisan::call('migrate:fresh --force');
+    return "Fresh migration completed!";
+});
+
+
+
 
 
 require __DIR__.'/auth.php';
