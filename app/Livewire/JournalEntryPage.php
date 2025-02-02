@@ -20,6 +20,7 @@ class JournalEntryPage extends Component
     const TYPE_CODE = 'code';
     const TYPE_IMAGE = 'image';
 
+    #[Rule(['nullable', 'exists:challenges,id'])]
     public ?int $challengeId = null;
 
     public string $title = '';
@@ -99,16 +100,33 @@ class JournalEntryPage extends Component
         ];
     }
     
-    public function mount($challengeId = null)
+    public function mount($challengeId = null, $entry = null)
     {
-        $this->challengeId = $challengeId;
         $this->date = now()->format('Y-m-d');
         $this->blocks = []; // Initialize empty blocks array
         $this->tags = [];
-        
-        if ($challengeId) {
-            $challenge = Challenge::findOrFail($challengeId);
-            $this->title = 'Journal Entry for ' . $challenge->title;
+
+        if ($entry) {
+            $journalEntry = JournalEntry::findOrFail($entry);
+            $this->challengeId = $journalEntry->challenge_id;
+            $this->title = $journalEntry->title;
+            $this->date = $journalEntry->date;
+            $this->blocks = $journalEntry->blocks;
+            $this->tags = $journalEntry->tags;
+            $this->is_private = $journalEntry->is_private;
+            
+            foreach ($journalEntry->links as $link) {
+                $this->shared_links[] = [
+                    'url' => $link->url,
+                    'caption' => $link->caption
+                ];
+            }
+        } else {
+            $this->challengeId = $challengeId;
+            if ($challengeId) {
+                $challenge = Challenge::findOrFail($challengeId);
+                $this->title = 'Journal Entry for ' . $challenge->title;
+            }
         }
     }
 
@@ -281,18 +299,22 @@ class JournalEntryPage extends Component
             }
         }
 
-        
-        $journalEntry = JournalEntry::create([
-            'user_id' => Auth::id(),
-            'challenge_id' => $this->challengeId,
-            'title' => $this->title,
-            'content' => null,
-            'date' => $this->date,
-            'blocks' => $this->blocks,
-            'tags' => $this->tags,
-            'is_private' => $this->is_private,
-        ]);
+                // Process journal entry
+                $data = [
+                    'user_id' => Auth::id(),
+                    'challenge_id' => $this->challengeId,
+                    'title' => $this->title,
+                    'content' => null,
+                    'date' => $this->date,
+                    'blocks' => $this->blocks,
+                    'tags' => $this->tags,
+                    'is_private' => $this->is_private,
+                ];
 
+                $journalEntry = JournalEntry::updateOrCreate(
+                    ['id' => request()->route('entry')],
+                    $data
+                );
 
         foreach ($this->shared_links as $link) {
             $journalEntry->links()->create([

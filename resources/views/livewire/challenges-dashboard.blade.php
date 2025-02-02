@@ -138,8 +138,10 @@
     </div>
 
     <!-- Delete Confirmation Modal -->
-    <div x-data="{ show: @entangle('showDeleteModal') }">
+    <div x-data="{ show: @entangle('showDeleteModal') }"
+        x-cloak>
         <div x-show="show"
+            x-trap="show"
             class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50"
             x-transition:enter="ease-out duration-300"
             x-transition:enter-start="opacity-0"

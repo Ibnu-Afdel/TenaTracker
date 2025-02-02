@@ -21,6 +21,10 @@ class Tag extends Model
         return $this->belongsToMany(Challenge::class, 'challenge_tag');
     }
 
+    public function journalEntries():BelongsToMany {
+        return $this->belongsToMany(JournalEntry::class, 'journal_tag');
+    }
+
     public function user():BelongsTo {
         return $this->belongsTo(User::class);
     }
