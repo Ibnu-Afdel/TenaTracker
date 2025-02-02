@@ -26,4 +26,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/challenges/{challengeId}/journal/{entry}', JournalEntryPage::class)->name('journal.view');
 });
 
+
+use Illuminate\Support\Facades\Artisan;
+
+Route::get('/migrate', function () {
+    Artisan::call('migrate --force');
+    return "Migration completed!";
+});
+
+
 require __DIR__.'/auth.php';
