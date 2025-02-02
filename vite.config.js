@@ -73,8 +73,6 @@ export default defineConfig({
         outDir: 'public/build',
     },
     server: {
-        host: '0.0.0.0',
-        strictPort: true,
         hmr: process.env.APP_ENV === 'local' ? { host: 'localhost' } : false,
     }
 });
