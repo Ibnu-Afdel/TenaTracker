@@ -48,7 +48,11 @@ export default defineConfig({
         strictPort: true,
         hmr: {
             host: 'tenatracker-production.up.railway.app',
-            protocol: 'wss', // WebSocket Secure instead of WS
+            protocol: 'wss', // WebSocket Secure
         },
+        cors: {
+            origin: '*', // Allow all origins
+            credentials: true, // Allow credentials if needed
+        }
     },
 });
