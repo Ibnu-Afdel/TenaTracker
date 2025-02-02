@@ -68,11 +68,17 @@ export default defineConfig({
             refresh: true,
         }),
     ],
-    build: {
-        manifest: true,
-        outDir: 'public/build',
-    },
     server: {
-        hmr: process.env.APP_ENV === 'local' ? { host: 'localhost' } : false,
-    }
+        strictPort: true,
+        hmr: process.env.APP_ENV === 'local' ? { host: 'localhost' } : false, // Prevents mixed content in production
+    },
+    build: {
+        outDir: 'public/build', // Ensure the correct build folder
+        manifest: true,
+        rollupOptions: {
+            input: {
+                app: 'resources/js/app.js',
+            },
+        },
+    },
 });
