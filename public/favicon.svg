@@ -1,0 +1,12 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+<!-- Notebook base with binding -->
+<rect x="6" y="4" width="20" height="24" rx="2" fill="#818cf8"/>
+<rect x="8" y="4" width="2" height="24" fill="#4f46e5"/>
+<!-- Notebook lines -->
+<rect x="12" y="8" width="12" height="1" fill="#e0e7ff"/>
+<rect x="12" y="12" width="12" height="1" fill="#e0e7ff"/>
+<rect x="12" y="16" width="12" height="1" fill="#e0e7ff"/>
+<!-- Checkmark -->
+<path d="M12 20l3 3 6-6" stroke="#e0e7ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+
