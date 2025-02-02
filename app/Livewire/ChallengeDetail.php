@@ -17,11 +17,17 @@ class ChallengeDetail extends Component
     public $confirmingDelete = false;
     public $shareToken = null;
     public $favorite = false;
+    public $search = '';
+    public $privacyFilter = 'all';
+    public $editingJournalId = null;
+    public $showDeleteJournalModal = false;
+    public $journalToDelete = null;
     
     public $statusOptions = ['Ongoing', 'Completed', 'Paused'];
 
     protected $listeners = [
-        'journalEntryCreated' => '$refresh'
+        'journalEntryCreated' => '$refresh',
+        'journalEntryUpdated' => '$refresh'
     ];
 
     public function mount($challengeId = null, $shareToken = null)
@@ -29,12 +35,20 @@ class ChallengeDetail extends Component
         if ($shareToken) {
             $this->shareToken = $shareToken;
             $this->challenge = Challenge::where('sharing_token', $shareToken)
-                ->with('tags', 'journalEntries')
+                ->with(['tags', 'journalEntries' => function ($query) {
+                    $query->with('tags');
+                }])
                 ->firstOrFail();
-        } else {
+        } elseif ($challengeId) {
             $this->challenge = Challenge::where('user_id', Auth::id())
-                ->with('tags', 'journalEntries')
+                ->with(['tags', 'journalEntries' => function ($query) {
+                    $query->with('tags');
+                }])
                 ->findOrFail($challengeId);
+        }
+        
+        if ($this->challenge) {
+            $this->favorite = (bool) $this->challenge->favorite;
         }
     }
     public function toggleStatus()
@@ -50,6 +64,16 @@ class ChallengeDetail extends Component
         }
     }
 
+    public function confirmDeleteChallenge()
+    {
+        $this->confirmingDelete = true;
+    }
+
+    public function cancelDeleteChallenge()
+    {
+        $this->confirmingDelete = false;
+    }
+    
     public function deleteChallenge()
     {
         if ($this->challenge->user_id === Auth::id()) {
@@ -101,12 +125,68 @@ class ChallengeDetail extends Component
         $this->challenge->save();
     }
 
+    public function confirmDeleteJournal($journalId)
+    {
+        $this->journalToDelete = JournalEntry::find($journalId);
+        if ($this->journalToDelete && $this->journalToDelete->challenge->user_id === Auth::id()) {
+            $this->showDeleteJournalModal = true;
+        }
+    }
+
+    public function cancelDeleteJournal()
+    {
+        $this->showDeleteJournalModal = false;
+        $this->journalToDelete = null;
+    }
+
+    public function deleteJournalEntry()
+    {
+        if ($this->journalToDelete && $this->journalToDelete->challenge->user_id === Auth::id()) {
+            $this->journalToDelete->delete();
+            $this->showDeleteJournalModal = false;
+            $this->journalToDelete = null;
+            $this->dispatch('notify', ['message' => 'Journal entry deleted successfully']);
+        }
+    }
+
+    public function editJournalEntry($journalId)
+    {
+        $this->editingJournalId = $journalId;
+        $this->dispatch('editJournalEntry', ['journalId' => $journalId]);
+    }
+
+    public function updatedSearch()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedPrivacyFilter()
+    {
+        $this->resetPage();
+    }
+
     public function render()
     {
 
+        if (!$this->challenge) {
+            return redirect()->route('dashboard');
+        }
+
         $journalEntries = JournalEntry::where('challenge_id', $this->challenge->id)
-        ->latest()
-        ->paginate(5);
+            ->when($this->search, function ($query) {
+                $query->where(function ($subQuery) {
+                    $subQuery->where('journal_entries.title', 'like', '%' . $this->search . '%')
+                        ->orWhere('journal_entries.content', 'like', '%' . $this->search . '%')
+                        ->orWhereHas('tags', function ($q) {
+                            $q->where('name', 'like', '%' . $this->search . '%');
+                        });
+                });
+            })
+            ->when($this->privacyFilter !== 'all', function ($query) {
+                $query->where('is_private', $this->privacyFilter === 'private');
+            })
+            ->latest()
+            ->paginate(5);
 
         return view('livewire.challenge-detail', compact('journalEntries'))
         ->layout('layouts.app');
