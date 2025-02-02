@@ -20,7 +20,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        if (env('APP_ENV') === 'production') {
+        if (config('app.env') === 'production') {
             URL::forceScheme('https');
             header('Access-Control-Allow-Origin: *');
         }
