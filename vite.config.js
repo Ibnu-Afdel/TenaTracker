@@ -39,6 +39,7 @@ export default defineConfig({
             input: ['resources/css/app.css', 'resources/js/app.js'],
             refresh: true,
         }),
+        livewire(),
     ],
     build: {
         manifest: true,
