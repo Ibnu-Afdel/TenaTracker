@@ -1,6 +1,6 @@
 [build]
 builder = "nixpacks"
-buildCommand = "npm install && npm run build && php artisan storage:link && php artisan config:cache"
+buildCommand = "rm -rf node_modules && npm install --force && npm run build && php artisan storage:link && php artisan config:clear && php artisan cache:clear && php artisan config:cache"
 
 [deploy]
 startCommand = "php artisan serve --host=0.0.0.0 --port=$PORT"
