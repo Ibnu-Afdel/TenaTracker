@@ -9,13 +9,12 @@
             <div class="relative overflow-hidden">
                 <div class="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-50"></div>
                 <div class="relative px-6 py-10 sm:px-8 sm:py-14">
-                    {{-- Back Button --}}
                     <a href="{{ route('dashboard') }}"
-                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 transition-colors bg-gray-100 rounded-lg shadow hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 transition-colors bg-gray-100 rounded-lg shadow-sm hover:bg-gray-200 hover:shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                        <svg class="w-5 h-5 mr-2 -ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                         </svg>
-                        Back
+                        Back to Dashboard
                     </a>
 
                     <div class="flex flex-col items-start justify-between gap-8 lg:flex-row">
@@ -158,7 +157,7 @@
                             </svg>
                         </div>
                         <input type="text" wire:model.live="search"
-                            class="w-full pl-10 pr-4 py-2 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                            class="w-full py-2 pl-10 pr-4 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                             placeholder="Search journal entries...">
                     </div>
 
@@ -192,7 +191,7 @@
                                                         d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
                                                         clip-rule="evenodd" />
                                                 </svg>
-                                                Private Entry
+                                                Private
                                             </span>
                                         @else
                                             <span
@@ -203,7 +202,7 @@
                                                         d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
                                                         clip-rule="evenodd" />
                                                 </svg>
-                                                Public Entry
+                                                Public 
                                             </span>
                                         @endif
                                     </div>
@@ -229,7 +228,7 @@
                             <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center space-x-4">
-                                        @if (!$entry->is_private)
+                                        @if (!$entry->is_private && $entry->shared_link)
                                             <a href="{{ route('shared.journal', ['shareToken' => $entry->shared_link]) }}"
                                                 class="inline-flex items-center text-sm font-medium text-gray-500 transition-colors hover:text-gray-900">
                                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor"
@@ -237,11 +236,18 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                                                 </svg>
-                                                Share Entry
+                                                Share Journal (open)
                                             </a>
                                         @endif
-                                        @if ($entry->user_id === auth()->id())
-                                            <span class="text-sm text-gray-500">Your Entry</span>
+                                        @if ($entry->is_private && $entry->user_id === auth()->id())
+                                            <a href="{{ route('shared.journal', ['shareToken' => $entry->shared_link]) }}" 
+                                                class="inline-flex items-center text-sm font-medium text-gray-500 transition-colors hover:text-gray-900">
+                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8V7a4 4 0 00-8 0v4h8z" />
+                                                </svg>
+                                                Your's Only (open)
+                                            </a>
                                         @endif
                                     </div>
                                     

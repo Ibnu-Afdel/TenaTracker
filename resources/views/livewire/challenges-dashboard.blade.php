@@ -3,7 +3,7 @@
         <!-- Search and Filter Bar -->
         <div class="mb-8 bg-white rounded-lg shadow">
             <div class="p-4 sm:p-6">
-                <!-- Header Section -->
+                <!-- Back Button -->
                 <div class="flex flex-col mb-6 space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
                     <h2 class="text-2xl font-bold text-center text-gray-800 sm:text-left">My Challenges</h2>
                     <button wire:click="$dispatch('openCreateChallengeModal')"
