@@ -12,6 +12,7 @@ export default defineConfig(({ command }) => ({
     build: {
         manifest: true,
         outDir: 'public/build',
+        manifest: 'manifest.json',
         rollupOptions: {
             output: {
                 assetFileNames: 'assets/[name]-[hash][extname]',
