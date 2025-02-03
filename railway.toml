@@ -1,29 +1,8 @@
 [build]
 builder = "nixpacks"
-buildCommand = """
-    cp .env.production .env && \
-    composer install --no-dev --optimize-autoloader && \
-    mkdir -p public/build && \
-    chmod -R 775 public/build && \
-    npm ci && \
-    NODE_ENV=production npm run build && \
-    echo "Checking Vite build output:" && \
-    ls -la public/build && \
-    echo "Checking manifest.json:" && \
-    cat public/build/manifest.json || echo "Manifest not found!" && \
-    mkdir -p storage/framework/{sessions,views,cache} && \
-    mkdir -p storage/app/public && \
-    touch database/database.sqlite && \
-    chmod -R 775 storage bootstrap/cache && \
-    php artisan storage:link && \
-    php artisan migrate --force && \
-    php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan view:cache
-"""
+buildCommand = "npm install && npm run build && mkdir -p /app/storage && touch /app/storage/database.sqlite && chmod -R 777 /app/storage && php artisan config:cache"
 
 [deploy]
 startCommand = "php artisan serve --host 0.0.0.0 --port $PORT"
-healthcheckPath = "/health"
+healthcheckPath = "/"
 healthcheckTimeout = 100
-restartPolicyType = "on_failure"

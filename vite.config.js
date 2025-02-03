@@ -34,5 +34,5 @@ export default defineConfig(({ command, mode }) => ({
             '@': '/resources/js',
         },
     },
-    base: mode === 'production' ? '/build/' : '',
+    base:  '',
 }));
