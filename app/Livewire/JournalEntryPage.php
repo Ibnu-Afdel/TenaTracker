@@ -23,6 +23,8 @@ class JournalEntryPage extends Component
     #[Rule(['nullable', 'exists:challenges,id'])]
     public ?int $challengeId = null;
 
+    public ?int $entryId = null;
+
     public string $title = '';
     public string $date;
     private int $dayNumber = 1;
@@ -36,6 +38,53 @@ class JournalEntryPage extends Component
         'url' => '',
         'caption' => ''
     ];
+    protected function imageUploadRules()
+    {
+        return function($attribute, $value, $fail) {
+            $index = explode('.', $attribute)[1] ?? null;
+            
+            if (!$index || !isset($this->blocks[$index])) {
+                return;
+            }
+
+            $block = $this->blocks[$index];
+            
+            if ($block['type'] !== 'image') {
+                return;
+            }
+
+            // For new blocks or when upload is provided
+            if (isset($block['upload'])) {
+                if (!($block['upload'] instanceof TemporaryUploadedFile)) {
+                    $fail('Please upload a valid image file.');
+                    return;
+                }
+                
+                if ($block['upload']->getSize() > 10240 * 1024) {
+                    $fail('Image size cannot exceed 10MB.');
+                    return;
+                }
+
+                $extension = strtolower($block['upload']->getClientOriginalExtension());
+                $validExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+                if (!in_array($extension, $validExtensions)) {
+                    $fail('The file must be an image (jpg, jpeg, png, gif, or webp).');
+                    return;
+                }
+            }
+            // For existing image blocks without new upload
+            elseif (!isset($block['content']) || empty($block['content'])) {
+                $fail('Please upload an image or provide existing image content.');
+                return;
+            }
+        };
+    }
+
+    protected function isEditing()
+    {
+        return request()->route('entry') !== null;
+    }
+
     public function rules(): array
     {
         return [
@@ -63,12 +112,7 @@ class JournalEntryPage extends Component
                     }
                 }
             ],
-            'blocks.*.upload' => [
-                'nullable',
-                'required_if:blocks.*.type,image',
-                'image',
-                'max:10240'
-            ],
+            'blocks.*.upload' => $this->imageUploadRules(),
             'blocks.*.metadata' => ['array'],
             'blocks.*.metadata.language' => [
                 'required_if:blocks.*.type,code',
@@ -103,12 +147,13 @@ class JournalEntryPage extends Component
     
     public function mount($challengeId = null, $entry = null)
     {
+        $this->entryId = $entry;
         $this->date = now()->format('Y-m-d');
-        $this->blocks = []; // Initialize empty blocks array
+        $this->blocks = [];
         $this->tags = [];
 
-        if ($entry) {
-            $journalEntry = JournalEntry::findOrFail($entry);
+        if ($this->entryId) {
+            $journalEntry = JournalEntry::findOrFail($this->entryId);
             $this->challengeId = $journalEntry->challenge_id;
             $this->title = $journalEntry->title;
             $this->date = $journalEntry->date;
@@ -116,41 +161,48 @@ class JournalEntryPage extends Component
             $this->tags = $journalEntry->tags;
             $this->is_private = $journalEntry->is_private;
             
-            foreach ($journalEntry->links as $link) {
-                $this->shared_links[] = [
+            $this->shared_links = $journalEntry->links->map(function($link) {
+                return [
                     'url' => $link->url,
                     'caption' => $link->caption
                 ];
-            }
+            })->toArray();
         } else {
             $this->challengeId = $challengeId;
             if ($challengeId) {
                 $challenge = Challenge::findOrFail($challengeId);
                 $this->dayNumber = $this->calculateDayNumber();
-                $this->title = 'Day ' . $this->dayNumber . ' - Journal Entry for ' . $challenge->title;
+                $this->title = 'Day ' . $this->dayNumber . ' - ' . $challenge->name. ' : ';
             }
         }
     }
 
     protected function processImageUpload($block, $index)
     {
-        if (isset($block['upload']) && $block['upload'] instanceof TemporaryUploadedFile) {
-            // Delete old image if it exists
-            if (isset($block['content']) && 
-                !($block['content'] instanceof TemporaryUploadedFile)) {
-                // Clean up old path and delete if exists
+        // If no new upload and we're editing, keep existing image
+        if (!isset($block['upload']) || !($block['upload'] instanceof TemporaryUploadedFile)) {
+            if (isset($block['content']) && !empty($block['content'])) {
+                return $block['content'];
+            }
+            return null;
+        }
+
+        // Handle new upload
+        if ($block['upload'] instanceof TemporaryUploadedFile) {
+            // Delete old image if exists
+            if (isset($block['content']) && !empty($block['content'])) {
                 $oldPath = str_replace('public/', '', $block['content']);
                 if (Storage::disk('public')->exists($oldPath)) {
                     Storage::disk('public')->delete($oldPath);
                 }
             }
             
-            // Store new image and ensure proper path
+            // Store and return new image path
             $path = $block['upload']->store('journal-images', 'public');
-            // Clean up the path to ensure consistency
             return str_replace('public/', '', $path);
         }
-        return $block['content'] ?? null;
+        
+        return null;
     }
 
     public function updatedBlocks($value, $key)
@@ -298,7 +350,6 @@ class JournalEntryPage extends Component
     {
         $this->validate();
 
-        // Process all blocks before saving
         foreach ($this->blocks as $index => $block) {
             if ($block['type'] === self::TYPE_IMAGE) {
                 $this->blocks[$index]['content'] = $this->processImageUpload($block, $index);
@@ -316,24 +367,27 @@ class JournalEntryPage extends Component
             'is_private' => $this->is_private,
         ];
 
-        $journalEntry = JournalEntry::updateOrCreate(
-            ['id' => request()->route('entry')],
-            $data
-        );
+        if ($this->entryId) {
+            $journalEntry = JournalEntry::findOrFail($this->entryId);
+            $journalEntry->update($data);
+            
+            // Clear existing links
+            $journalEntry->links()->delete();
+        } else {
+            $journalEntry = JournalEntry::create($data);
+        }
 
-        // Process shared links if they exist
-        if (!empty($this->shared_links)) {
-            foreach ($this->shared_links as $link) {
-                if (!empty($link['url'])) {
-                    $journalEntry->links()->create([
-                        'url' => $link['url'],
-                        'caption' => $link['caption'] ?? ''
-                    ]);
-                }
+        // Add new links
+        foreach ($this->shared_links as $link) {
+            if (!empty($link['url'])) {
+                $journalEntry->links()->create([
+                    'url' => $link['url'],
+                    'caption' => $link['caption'] ?? ''
+                ]);
             }
         }
 
-        session()->flash('message', 'Journal entry saved successfully!');
+        session()->flash('message', 'Journal entry ' . ($this->entryId ? 'updated' : 'created') . ' successfully!');
         return $this->redirectRoute('challenges.detail', ['challengeId' => $this->challengeId]);
     }
     

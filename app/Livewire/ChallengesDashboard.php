@@ -11,7 +11,9 @@ use Livewire\Attributes\On;
 class ChallengesDashboard extends Component
 {
     public $search = '';
+    #[Url]
     public $statusFilter = 'all';
+    #[Url]
     public $favoritesOnly = false;
     public $showDeleteModal = false;
     public $challengeToDelete = null;
@@ -22,6 +24,11 @@ class ChallengesDashboard extends Component
     
     }
 
+
+    public function toggleFavorites()
+    {
+        $this->favoritesOnly = !$this->favoritesOnly;
+    }
 
     public function editChallenge($challengeId)
 {
@@ -60,10 +67,6 @@ class ChallengesDashboard extends Component
         $challenge->save();
     }
 
-    public function toggleFavorites()
-    {
-        $this->favoritesOnly = !$this->favoritesOnly;
-    }
 
     #[Computed]
     public function challenges()
