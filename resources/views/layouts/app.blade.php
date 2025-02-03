@@ -11,24 +11,9 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-
-        
-        @viteReactRefresh
-        @php
-            $manifestPath = public_path('build/manifest.json');
-            $manifest = file_exists($manifestPath) ? json_decode(file_get_contents($manifestPath), true) : null;
-        @endphp
-        @if(app()->environment('local'))
-            @vite(['resources/css/app.css', 'resources/js/app.js'])
-        @else
-            @if($manifest)
-                <link rel="stylesheet" href="{{ asset('build/'.$manifest['resources/css/app.css']['file']) }}">
-                <script type="module" src="{{ asset('build/'.$manifest['resources/js/app.js']['file']) }}"></script>
-            @else
-                @vite(['resources/css/app.css', 'resources/js/app.js'])
-            @endif
-        @endif
         <!-- Scripts -->
+        @viteReactRefresh
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
         {{-- @vite(['resources/css/app.css', 'resources/js/app.js'])
         @livewireStyles --}}
     </head>
