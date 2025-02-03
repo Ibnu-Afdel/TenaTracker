@@ -7,13 +7,16 @@ buildCommand = """
     touch storage/database.sqlite && \
     chmod -R 775 storage bootstrap/cache && \
     php artisan storage:link && \
-    php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan view:cache
+    php artisan optimize:clear && \
+    php artisan config:clear && \
+    php artisan cache:clear && \
+    php artisan route:clear && \
+    php artisan view:clear && \
+    php artisan migrate --force
 """
 
 [deploy]
-startCommand = "php artisan serve --host 0.0.0.0 --port $PORT"
+startCommand = "php-fpm -D && nginx -g 'daemon off;'"
 healthcheckPath = "/"
 healthcheckTimeout = 100
 restartPolicyType = "on_failure"
