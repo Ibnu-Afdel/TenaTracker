@@ -8,15 +8,15 @@ export default defineConfig(({ command }) => ({
             refresh: true,
         }),
     ],
-    base: command === 'serve' ? '' : process.env.VITE_BASE_URL || '/build/',
+    base: command === 'serve' ? '' : '/build/',
     build: {
         manifest: true,
         outDir: 'public/build',
         rollupOptions: {
             output: {
-                assetFileNames: 'assets/[ext]/[name]-[hash][extname]',
-                chunkFileNames: 'js/[name]-[hash].js',
-                entryFileNames: 'js/[name]-[hash].js',
+                assetFileNames: 'assets/[name]-[hash][extname]',
+                chunkFileNames: 'assets/[name]-[hash].js',
+                entryFileNames: 'assets/[name]-[hash].js',
             },
         },
     },

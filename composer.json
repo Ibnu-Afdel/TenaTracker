@@ -8,7 +8,7 @@
     "require": {
         "php": "^8.2",
         "filament/filament": "^3.2",
-        "laravel/framework": "11.0.0-beta.4",
+        "laravel/framework": "^11.0",
         "laravel/tinker": "^2.9",
         "livewire/livewire": "^3.5",
         "ext-pdo": "*"
@@ -72,6 +72,6 @@
             "php-http/discovery": true
         }
     },
-    "minimum-stability": "beta",
+    "minimum-stability": "stable",
     "prefer-stable": true
 }
