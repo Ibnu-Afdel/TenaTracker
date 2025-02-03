@@ -7,6 +7,13 @@ use App\Livewire\SharedChallenge;
 use App\Livewire\JournalEntryPage;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/health', function () {
+    return response()->json([
+        'status' => 'healthy',
+        'timestamp' => now()->toISOString()
+    ]);
+});
+
 Route::view('/', 'welcome');
 
 // Public routes - no auth required
@@ -50,13 +57,5 @@ Route::get('/migrate-fresh', function () {
     Artisan::call('migrate:fresh --force');
     return "Fresh migration completed!";
 });
-
-Route::get('/health', function () {
-    return response()->json(['status' => 'ok']);
-});
-
-
-
-
 
 require __DIR__.'/auth.php';

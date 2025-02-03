@@ -3,21 +3,25 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
-        "build": "vite build --mode production",
-        "production": "vite build --mode production",
-        "postinstall": "npm run production"
+        "build": "vite build",
+        "build:prod": "vite build --mode production",
+        "postinstall": "npm run build:prod",
+        "start": "vite preview",
+        "production": "cross-env NODE_ENV=production vite build"
+    },
+    "dependencies": {
+        "@tailwindcss/forms": "^0.5.7",
+        "@tailwindcss/typography": "^0.5.10",
+        "alpinejs": "^3.13.3",
+        "axios": "^1.6.2",
+        "vite": "^5.0.10",
+        "laravel-vite-plugin": "^1.0.1",
+        "tailwindcss": "^3.4.0",
+        "postcss": "^8.4.32",
+        "autoprefixer": "^10.4.16"
     },
     "devDependencies": {
-        "@tailwindcss/forms": "^0.5.2",
-        "@tailwindcss/typography": "^0.5.16",
-        "alpinejs": "^3.4.2",
-        "axios": "^1.7.4",
-        "concurrently": "^9.0.1",
-        "vite": "^6.0",
-        "laravel-vite-plugin": "^1.0",
-        "tailwindcss": "^3.1.0",
-        "postcss": "^8.4.31",
-        "autoprefixer": "^10.4.2"
-    },
-    "dependencies": {}
+        "cross-env": "^7.0.3",
+        "concurrently": "^8.2.2"
+    }
 }

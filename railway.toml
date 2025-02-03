@@ -1,8 +1,31 @@
 [build]
 builder = "nixpacks"
-buildCommand = "npm install && npm run build && mkdir -p /app/storage && touch /app/storage/database.sqlite && chmod -R 777 /app/storage && php artisan config:cache"
+buildCommand = """
+composer install --no-dev --optimize-autoloader &&
+npm ci &&
+npm run build &&
+mkdir -p storage/framework/{sessions,views,cache} &&
+mkdir -p storage/logs &&
+mkdir -p database &&
+touch database/database.sqlite &&
+chmod -R 775 storage bootstrap/cache database &&
+php artisan storage:link &&
+php artisan key:generate --force &&
+php artisan config:cache &&
+php artisan route:cache &&
+php artisan view:cache
+"""
 
 [deploy]
-startCommand = "php artisan serve --host 0.0.0.0 --port=8000"
-healthcheckPath = "/"
-healthcheckTimeout = 100
+startCommand = "php artisan serve --host=0.0.0.0 --port=${PORT:-8000}"
+healthcheckPath = "/health"
+healthcheckTimeout = 60
+
+[deploy.vars]
+APP_ENV = "production"
+DB_CONNECTION = "sqlite"
+DB_DATABASE = "/app/database/database.sqlite"
+LOG_CHANNEL = "stderr"
+SESSION_DRIVER = "cookie"
+CACHE_DRIVER = "file"
+QUEUE_CONNECTION = "sync"
