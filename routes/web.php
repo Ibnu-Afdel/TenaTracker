@@ -51,6 +51,10 @@ Route::get('/migrate-fresh', function () {
     return "Fresh migration completed!";
 });
 
+Route::get('/health', function () {
+    return response()->json(['status' => 'ok']);
+});
+
 
 
 

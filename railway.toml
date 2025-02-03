@@ -7,6 +7,7 @@ buildCommand = """
     touch storage/database.sqlite && \
     chmod -R 775 storage bootstrap/cache && \
     php artisan storage:link && \
+    php artisan migrate --force && \
     php artisan config:cache && \
     php artisan route:cache && \
     php artisan view:cache
@@ -14,6 +15,6 @@ buildCommand = """
 
 [deploy]
 startCommand = "php artisan serve --host 0.0.0.0 --port $PORT"
-healthcheckPath = "/"
+healthcheckPath = "/health"
 healthcheckTimeout = 100
 restartPolicyType = "on_failure"
