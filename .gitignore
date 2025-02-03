@@ -11,7 +11,7 @@ auth.json
 
 # Node.js & Build files
 /node_modules
-/public/build
+# /public/build
 /public/hot
 npm-debug.log
 yarn-error.log
