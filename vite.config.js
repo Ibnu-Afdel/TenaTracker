@@ -10,9 +10,10 @@ export default defineConfig(({ command }) => ({
     ],
     base: command === 'serve' ? '' : '/build/',
     build: {
-        manifest: true,
         outDir: 'public/build',
-        manifest: 'manifest.json',
+        manifest: {
+            path: 'manifest.json'
+        },
         rollupOptions: {
             output: {
                 assetFileNames: 'assets/[name]-[hash][extname]',
