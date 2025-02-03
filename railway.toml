@@ -1,42 +1,6 @@
-[phases.setup]
-nixPkgsReleaseTag = "nixos-23.05"
-providers = ["php", "nodejs"]
-
-[phases.setup.php]
-version = "8.2"
-extensions = ["pdo", "pdo_sqlite", "sqlite3", "fileinfo", "openssl", "bcmath"]
-
-[phases.setup.nodejs]
-version = "20.x"
-
 [build]
 builder = "nixpacks"
-buildCommand = """
-# Install PHP dependencies
-composer install --no-dev --optimize-autoloader
-
-# Install and build frontend assets
-npm ci
-npm run build
-
-# Prepare storage directories
-mkdir -p storage/framework/{sessions,views,cache}
-mkdir -p storage/logs
-mkdir -p bootstrap/cache
-chmod -R 775 storage bootstrap/cache
-
-# Prepare database
-mkdir -p database
-touch database/database.sqlite
-chmod -R 775 database
-
-# Laravel optimization
-php artisan storage:link
-php artisan key:generate --force
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-"""
+buildCommand = "composer install --no-dev --optimize-autoloader && npm ci && npm run build && php artisan storage:link && php artisan key:generate --force"
 
 [deploy]
 startCommand = "php artisan serve --host=0.0.0.0 --port=${PORT:-8000}"
@@ -47,10 +11,7 @@ healthcheckTimeout = 60
 APP_ENV = "production"
 DB_CONNECTION = "sqlite"
 DB_DATABASE = "/app/database/database.sqlite"
-LOG_CHANNEL = "stderr"
-SESSION_DRIVER = "cookie"
 CACHE_DRIVER = "file"
-QUEUE_CONNECTION = "sync"
 
 [nixpacks]
 php-version = "8.2"
