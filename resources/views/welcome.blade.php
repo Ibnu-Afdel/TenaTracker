@@ -4,8 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>TenaTracker - Track Your Progress</title>
-    @vite(['resources/css/app.css'])
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="antialiased bg-gray-50">
     <nav x-data="{ isOpen: false }" class="fixed z-50 w-full border-b border-gray-100 bg-white/80 backdrop-blur-sm">
