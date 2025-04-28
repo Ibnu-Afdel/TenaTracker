@@ -5,6 +5,7 @@ use App\Livewire\ChallengeDetail;
 use App\Livewire\ChallengesDashboard;
 use App\Livewire\SharedChallenge;
 use App\Livewire\JournalEntryPage;
+use App\Livewire\JournalRichTextPage;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', function () {
@@ -27,8 +28,9 @@ Route::middleware(['auth'])->group(function () {
     
     Route::get('/dashboard', ChallengesDashboard::class)->name('dashboard');
     Route::get('/challenges/{challengeId}', ChallengeDetail::class)->name('challenges.detail');
-    Route::get('/journal/create/{challengeId?}', JournalEntryPage::class)->name('journal.create');
-    Route::get('/journal/{entry}', JournalEntryPage::class)->name('journal.edit');
+    Route::redirect('/journal', '/journal/create')->name('journal.redirect');
+    Route::get('/journal/create/{challengeId?}', JournalRichTextPage::class)->name('journal.create');
+    Route::get('/journal/{entry}', JournalRichTextPage::class)->name('journal.edit');
     Route::get('/challenges/{challengeId}/journal/{entry}', JournalEntryPage::class)->name('journal.view');
 });
 

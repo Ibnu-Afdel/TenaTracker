@@ -7,11 +7,13 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "ext-pdo": "*",
+        "awcodes/filament-tiptap-editor": "^3.5",
         "filament/filament": "^3.2",
         "laravel/framework": "^11.0",
         "laravel/tinker": "^2.9",
         "livewire/livewire": "^3.5",
-        "ext-pdo": "*"
+        "wireui/wireui": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
